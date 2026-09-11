@@ -2638,3 +2638,78 @@ renderCustomFields = function() {
     container.appendChild(row);
   });
 };
+/* =========================
+   MyScale v0.6.1
+   メモ・タグ編集
+========================= */
+
+function openMemoEditor() {
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+  if (!item) return;
+
+  const memoInput =
+    document.getElementById("memoEditValue");
+
+  const tagsInput =
+    document.getElementById("memoEditTags");
+
+  if (!memoInput || !tagsInput) return;
+
+  memoInput.value = item.memo || "";
+
+  tagsInput.value =
+    Array.isArray(item.tags)
+      ? item.tags.join(" ")
+      : "";
+
+  document
+    .getElementById("memoEditorModal")
+    ?.classList.add("show");
+}
+
+
+function closeMemoEditor() {
+  document
+    .getElementById("memoEditorModal")
+    ?.classList.remove("show");
+}
+
+
+function saveMemoEdit() {
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+  if (!item) return;
+
+  const memo =
+    document
+      .getElementById("memoEditValue")
+      .value.trim();
+
+  const tagsText =
+    document
+      .getElementById("memoEditTags")
+      .value.trim();
+
+  const tags = tagsText
+    ? tagsText
+        .split(/\s+/)
+        .map(tag => tag.replace(/^#/, ""))
+        .filter(Boolean)
+    : [];
+
+  item.memo = memo;
+  item.tags = tags;
+  item.updatedAt = Date.now();
+
+  persist();
+
+  closeMemoEditor();
+
+  renderItemDetail();
+  applyItemEditMode();
+}
