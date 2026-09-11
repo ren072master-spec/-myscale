@@ -409,6 +409,181 @@
   </div>
 
 </div>
+<!-- チャート追加方法 -->
+<div
+  id="addChartModal"
+  class="overlay"
+  onclick="closeOnBackground(event, 'addChartModal')"
+>
+
+  <div class="sheet">
+
+    <div class="sheet-head">
+
+      <h2>評価チャートを追加</h2>
+
+      <button
+        class="close"
+        onclick="closeAddChartMenu()"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <button
+      class="action-card"
+      onclick="createNewChartFromMenu()"
+    >
+
+      <span class="action-icon">
+        ✨
+      </span>
+
+      <span>
+        <strong>
+          新しいチャートを作る
+        </strong>
+
+        <small>
+          評価項目をゼロから作成
+        </small>
+      </span>
+
+    </button>
+
+
+    <button
+      class="action-card"
+      onclick="openTemplatePicker()"
+    >
+
+      <span class="action-icon">
+        🧩
+      </span>
+
+      <span>
+        <strong>
+          テンプレートから作る
+        </strong>
+
+        <small>
+          保存した評価軸を再利用
+        </small>
+      </span>
+
+    </button>
+
+  </div>
+
+</div>
+
+
+
+<!-- テンプレート選択 -->
+<div
+  id="templateModal"
+  class="overlay"
+  onclick="closeOnBackground(event, 'templateModal')"
+>
+
+  <div class="sheet">
+
+    <div class="sheet-head">
+
+      <h2>
+        🧩 テンプレート
+      </h2>
+
+      <button
+        class="close"
+        onclick="closeTemplatePicker()"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <div id="templateList"></div>
+
+  </div>
+
+</div>
+
+
+
+<!-- チャート•••メニュー -->
+<div
+  id="chartActionModal"
+  class="overlay"
+  onclick="closeOnBackground(event, 'chartActionModal')"
+>
+
+  <div class="sheet action-sheet">
+
+    <div class="action-title">
+
+      <small>
+        評価チャート
+      </small>
+
+      <strong id="chartActionTitle">
+        チャート
+      </strong>
+
+    </div>
+
+
+    <button
+      class="action-row"
+      onclick="actionEditChart()"
+    >
+      ✏️
+      <span>編集</span>
+    </button>
+
+
+    <button
+      class="action-row"
+      onclick="actionDuplicateChart()"
+    >
+      📋
+      <span>この対象内で複製</span>
+    </button>
+
+
+    <button
+      class="action-row"
+      onclick="actionSaveTemplate()"
+    >
+      🧩
+      <span>
+        テンプレートとして保存
+      </span>
+    </button>
+
+
+    <button
+      class="action-row danger-row"
+      onclick="actionDeleteChart()"
+    >
+      🗑️
+      <span>削除</span>
+    </button>
+
+
+    <button
+      class="cancel-action"
+      onclick="closeChartActionMenu()"
+    >
+      キャンセル
+    </button>
+
+  </div>
+
+</div>
 <script src="app.js"></script>
 
 </body>
