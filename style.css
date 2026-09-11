@@ -598,3 +598,19 @@ nav button {
   background: var(--purple);
   color: white;
 }
+/* =========================
+   v0.5.2 設定・バックアップ
+========================= */
+
+.settings-section h3 {
+  margin: 5px 0 16px;
+  font-size: 18px;
+}
+
+.settings-section .action-card {
+  margin-bottom: 12px;
+}
+
+.settings-section .action-card span:last-child {
+  flex: 1;
+}
