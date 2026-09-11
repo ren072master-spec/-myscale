@@ -849,6 +849,60 @@
 
   </div>
 </div>
+ <!-- =========================
+     v0.6.1 メモ・タグ編集
+========================= -->
+
+<div
+  id="memoEditorModal"
+  class="overlay"
+  onclick="closeOnBackground(event, 'memoEditorModal')"
+>
+  <div class="sheet">
+
+    <div class="sheet-head">
+      <h2>📝 メモ・タグを編集</h2>
+
+      <button
+        class="close"
+        onclick="closeMemoEditor()"
+      >
+        ×
+      </button>
+    </div>
+
+    <label>メモ</label>
+
+    <textarea
+      id="memoEditValue"
+      class="field"
+      maxlength="500"
+      placeholder="好きなところ、気になったことなど"
+    ></textarea>
+
+    <label>タグ</label>
+
+    <input
+      id="memoEditTags"
+      class="field"
+      type="text"
+      maxlength="100"
+      placeholder="例：推し 女性キャラ エヴァ"
+    >
+
+    <div class="muted">
+      スペース区切りで複数登録できます
+    </div>
+
+    <button
+      class="save-button"
+      onclick="saveMemoEdit()"
+    >
+      保存
+    </button>
+
+  </div>
+</div> 
   <script src="app.js?v=060"></script>
 
 </body>
