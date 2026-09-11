@@ -569,3 +569,32 @@ nav button {
   color: var(--text);
   font-weight: 700;
 }
+/* =========================
+   v0.5.1 閲覧 / 編集モード
+========================= */
+
+/* 編集ボタン */
+.item-edit-button {
+  border: 0;
+  border-radius: 999px;
+  padding: 9px 16px;
+  background: #efedff;
+  color: var(--purple);
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* 通常は編集用UIを隠す */
+#itemView:not(.edit-mode) .primary-button,
+#itemView:not(.edit-mode) .danger-button,
+#itemView:not(.edit-mode) .chart-delete,
+#itemView:not(.edit-mode) .custom-field-delete {
+  display: none;
+}
+
+/* 編集中のボタン */
+#itemView.edit-mode .item-edit-button {
+  background: var(--purple);
+  color: white;
+}
