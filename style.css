@@ -614,3 +614,11 @@ nav button {
 .settings-section .action-card span:last-child {
   flex: 1;
 }
+/* =========================
+   v0.6.1 メモ編集
+========================= */
+
+.memo-edit-button {
+  display: block;
+  margin: -42px 0 18px auto;
+}
