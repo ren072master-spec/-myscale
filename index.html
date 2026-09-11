@@ -735,6 +735,73 @@
 
   </div>
 </div>
+  <!-- =========================
+     v0.5.2 設定・バックアップ
+========================= -->
+
+<div
+  id="settingsModal"
+  class="overlay"
+  onclick="closeOnBackground(event, 'settingsModal')"
+>
+  <div class="sheet">
+
+    <div class="sheet-head">
+      <h2>⚙️ 設定</h2>
+
+      <button
+        class="close"
+        onclick="closeSettings()"
+      >
+        ×
+      </button>
+    </div>
+
+    <div class="settings-section">
+
+      <h3>データ管理</h3>
+
+      <button
+        class="action-card"
+        onclick="exportMyScaleData()"
+      >
+        <span class="action-icon">📤</span>
+
+        <span>
+          <strong>バックアップを書き出す</strong>
+          <small>
+            カテゴリー・記録・評価チャート・
+            テンプレートを保存
+          </small>
+        </span>
+      </button>
+
+      <button
+        class="action-card"
+        onclick="chooseBackupFile()"
+      >
+        <span class="action-icon">📥</span>
+
+        <span>
+          <strong>バックアップから復元</strong>
+          <small>
+            保存したMyScaleデータを読み込む
+          </small>
+        </span>
+      </button>
+
+      <input
+        id="backupFileInput"
+        type="file"
+        accept=".json,application/json"
+        hidden
+        onchange="importMyScaleData(event)"
+      >
+
+    </div>
+
+  </div>
+</div>
   <script src="app.js"></script>
 
 </body>
