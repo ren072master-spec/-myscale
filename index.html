@@ -339,7 +339,76 @@
 
 </div>
 
+<!-- 評価チャート作成 -->
+<div
+  id="chartModal"
+  class="overlay"
+  onclick="closeOnBackground(event, 'chartModal')"
+>
 
+  <div class="sheet">
+
+    <div class="sheet-head">
+
+      <h2>評価チャートを作成</h2>
+
+      <button
+        class="close"
+        onclick="closeChartCreator()"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <label>チャート名</label>
+
+    <input
+      id="chartName"
+      class="field"
+      type="text"
+      maxlength="40"
+      placeholder="例：キャラクター評価"
+    >
+
+
+    <label>満点</label>
+
+    <select
+      id="chartMax"
+      class="field"
+      onchange="chartMaxChanged()"
+    >
+      <option value="5">5点満点</option>
+      <option value="10">10点満点</option>
+    </select>
+
+
+    <label>評価項目</label>
+
+    <div id="axisEditor"></div>
+
+
+    <button
+      class="axis-add-button"
+      type="button"
+      onclick="addAxis()"
+    >
+      ＋ 評価項目を追加
+    </button>
+
+
+    <button
+      class="save-button"
+      onclick="saveChart()"
+    >
+      チャートを保存
+    </button>
+
+  </div>
+
+</div>
 <script src="app.js"></script>
 
 </body>
