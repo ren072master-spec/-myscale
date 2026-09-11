@@ -2137,3 +2137,197 @@ openItem = function(id) {
 
   applyItemEditMode();
 };
+/* =========================
+   MyScale v0.5.2
+   バックアップ / 復元
+========================= */
+
+function openSettings() {
+  document
+    .getElementById("settingsModal")
+    ?.classList.add("show");
+}
+
+function closeSettings() {
+  document
+    .getElementById("settingsModal")
+    ?.classList.remove("show");
+}
+
+
+/* -------------------------
+   バックアップ書き出し
+------------------------- */
+
+function exportMyScaleData() {
+
+  const backup = {
+    app: "MyScale",
+    version: "0.5.2",
+    exportedAt: new Date().toISOString(),
+
+    data: {
+      categories: categories,
+      items: items,
+      chartTemplates: chartTemplates
+    }
+  };
+
+  const json = JSON.stringify(
+    backup,
+    null,
+    2
+  );
+
+  const blob = new Blob(
+    [json],
+    {
+      type: "application/json"
+    }
+  );
+
+  const url =
+    URL.createObjectURL(blob);
+
+  const link =
+    document.createElement("a");
+
+  const date =
+    new Date()
+      .toISOString()
+      .slice(0, 10);
+
+  link.href = url;
+
+  link.download =
+    `myscale-backup-${date}.json`;
+
+  document.body.appendChild(link);
+
+  link.click();
+
+  link.remove();
+
+  URL.revokeObjectURL(url);
+}
+
+
+/* -------------------------
+   復元ファイル選択
+------------------------- */
+
+function chooseBackupFile() {
+
+  const input =
+    document.getElementById(
+      "backupFileInput"
+    );
+
+  if (!input) return;
+
+  input.value = "";
+
+  input.click();
+}
+
+
+/* -------------------------
+   バックアップ復元
+------------------------- */
+
+function importMyScaleData(event) {
+
+  const file =
+    event.target.files?.[0];
+
+  if (!file) return;
+
+  const reader =
+    new FileReader();
+
+  reader.onload = function() {
+
+    try {
+
+      const backup =
+        JSON.parse(reader.result);
+
+      if (
+        backup?.app !== "MyScale" ||
+        !backup?.data ||
+        !Array.isArray(
+          backup.data.categories
+        ) ||
+        !Array.isArray(
+          backup.data.items
+        )
+      ) {
+        throw new Error(
+          "MyScaleのバックアップではありません"
+        );
+      }
+
+      const ok = confirm(
+        "現在のMyScaleデータを、" +
+        "このバックアップ内容で置き換えます。\n\n" +
+        "よろしいですか？"
+      );
+
+      if (!ok) return;
+
+      categories =
+        backup.data.categories;
+
+      items =
+        backup.data.items;
+
+      chartTemplates =
+        Array.isArray(
+          backup.data.chartTemplates
+        )
+          ? backup.data.chartTemplates
+          : [];
+
+      persist();
+
+      persistTemplates();
+
+      closeSettings();
+
+      showHome();
+
+      alert(
+        "バックアップを復元しました！"
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        "このファイルは読み込めませんでした。\n" +
+        "MyScaleのバックアップJSONを選んでね。"
+      );
+    }
+  };
+
+  reader.readAsText(file);
+}
+
+
+/* -------------------------
+   下ナビ「設定」を有効化
+------------------------- */
+
+document
+  .querySelectorAll("nav button")
+  .forEach(button => {
+
+    if (
+      button.textContent.includes("設定")
+    ) {
+      button.onclick =
+        openSettings;
+    }
+
+  });
