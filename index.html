@@ -1,561 +1,346 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<title>MyScale</title>
+  <meta charset="UTF-8">
 
-<style>
-* { box-sizing: border-box; }
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
 
-:root {
-  --bg:#f6f7fb;
-  --card:#ffffff;
-  --text:#202235;
-  --sub:#8a8b94;
-  --purple:#6557d9;
-  --border:#e5e5eb;
-}
+  <meta name="apple-mobile-web-app-capable" content="yes">
 
-body {
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
-}
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="default"
+  >
 
-button,input { font:inherit; }
+  <title>MyScale</title>
 
-.app {
-  max-width:480px;
-  margin:auto;
-  min-height:100vh;
-  padding:28px 18px 110px;
-}
-
-header {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:28px;
-}
-
-h1 {
-  font-size:32px;
-  margin:0;
-}
-
-.subtitle {
-  color:var(--sub);
-  font-size:14px;
-  margin-top:4px;
-}
-
-.circle-add {
-  width:52px;
-  height:52px;
-  border:0;
-  border-radius:50%;
-  background:var(--purple);
-  color:white;
-  font-size:32px;
-  cursor:pointer;
-}
-
-.categories {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-}
-
-.category {
-  position:relative;
-  min-height:135px;
-  padding:20px;
-  background:var(--card);
-  border-radius:22px;
-  box-shadow:0 4px 18px rgba(0,0,0,.05);
-}
-
-.category .emoji {
-  font-size:34px;
-}
-
-.category h2 {
-  margin:14px 0 4px;
-  font-size:18px;
-}
-
-.count {
-  color:var(--sub);
-  font-size:13px;
-}
-
-.delete {
-  position:absolute;
-  right:10px;
-  top:10px;
-  width:28px;
-  height:28px;
-  border:0;
-  border-radius:50%;
-  background:#f0f0f4;
-  color:#888;
-}
-
-.new-category {
-  border:2px dashed #ccc;
-  background:transparent;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  text-align:center;
-}
-
-.new-category .plus {
-  font-size:35px;
-}
-
-.section-title {
-  margin:32px 0 15px;
-  font-size:24px;
-}
-
-.empty {
-  padding:20px;
-  background:white;
-  border-radius:20px;
-  box-shadow:0 4px 18px rgba(0,0,0,.04);
-}
-
-.empty strong {
-  display:block;
-  margin-bottom:6px;
-}
-
-.empty span {
-  color:var(--sub);
-  font-size:14px;
-}
-
-/* モーダル */
-
-.overlay {
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(20,20,30,.38);
-  z-index:100;
-  align-items:flex-end;
-  justify-content:center;
-}
-
-.overlay.show {
-  display:flex;
-}
-
-.sheet {
-  width:min(480px,100%);
-  background:white;
-  border-radius:28px 28px 0 0;
-  padding:22px 20px calc(28px + env(safe-area-inset-bottom));
-  animation:up .22s ease;
-}
-
-@keyframes up {
-  from { transform:translateY(100%); }
-  to { transform:translateY(0); }
-}
-
-.sheet-head {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:22px;
-}
-
-.sheet-head h2 {
-  margin:0;
-}
-
-.close {
-  border:0;
-  background:#eeeef3;
-  border-radius:50%;
-  width:34px;
-  height:34px;
-  font-size:20px;
-}
-
-label {
-  display:block;
-  font-weight:700;
-  margin:18px 0 8px;
-}
-
-.name-input {
-  width:100%;
-  border:1px solid var(--border);
-  background:#f8f8fb;
-  border-radius:14px;
-  padding:15px;
-  font-size:16px;
-  outline:none;
-}
-
-.emoji-picker {
-  display:grid;
-  grid-template-columns:repeat(6,1fr);
-  gap:8px;
-}
-
-.emoji-option {
-  border:2px solid transparent;
-  background:#f5f5f8;
-  border-radius:14px;
-  padding:10px 4px;
-  font-size:25px;
-}
-
-.emoji-option.selected {
-  border-color:var(--purple);
-  background:#efedff;
-}
-
-.save {
-  width:100%;
-  margin-top:25px;
-  border:0;
-  border-radius:16px;
-  padding:16px;
-  background:var(--purple);
-  color:white;
-  font-size:17px;
-  font-weight:700;
-}
-
-nav {
-  position:fixed;
-  z-index:50;
-  left:50%;
-  bottom:0;
-  transform:translateX(-50%);
-  width:min(480px,100%);
-  height:78px;
-  padding-bottom:env(safe-area-inset-bottom);
-  background:rgba(255,255,255,.96);
-  border-top:1px solid var(--border);
-  display:flex;
-  align-items:center;
-  justify-content:space-around;
-}
-
-nav button {
-  border:0;
-  background:transparent;
-  color:var(--text);
-  font-size:12px;
-  line-height:1.6;
-}
-
-nav .nav-icon {
-  font-size:20px;
-}
-</style>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
 <main class="app">
 
-<header>
-  <div>
-    <h1>MyScale</h1>
-    <div class="subtitle">好きなものを、自分のものさしで。</div>
-  </div>
+  <!-- ホーム -->
+  <section id="homeView">
 
-  <button class="circle-add" onclick="openCategory()">＋</button>
-</header>
+    <header>
+      <div>
+        <h1>MyScale</h1>
+        <div class="subtitle">
+          好きなものを、自分のものさしで。
+        </div>
+      </div>
 
-<section id="categoryGrid" class="categories"></section>
+      <button
+        class="circle-add"
+        onclick="openCategoryCreator()"
+      >
+        ＋
+      </button>
+    </header>
 
-<h2 class="section-title">最近の記録</h2>
+    <div
+      id="categoryGrid"
+      class="categories"
+    ></div>
 
-<div class="empty">
-  <strong>まだ記録がありません</strong>
-  <span>まずはカテゴリーを作ってみよう</span>
-</div>
+    <h2 class="section-title">
+      最近の記録
+    </h2>
+
+    <div id="recentRecords"></div>
+
+  </section>
+
+
+  <!-- カテゴリー詳細 -->
+  <section id="categoryView" hidden>
+
+    <button
+      class="back-button"
+      onclick="showHome()"
+    >
+      ← ホーム
+    </button>
+
+    <header>
+      <div>
+        <h1 id="categoryTitle">
+          カテゴリー
+        </h1>
+
+        <div class="subtitle">
+          評価する対象を選ぼう
+        </div>
+      </div>
+
+      <button
+        class="circle-add"
+        onclick="openItemCreator()"
+      >
+        ＋
+      </button>
+    </header>
+
+    <div
+      id="categoryItems"
+      class="items-grid"
+    ></div>
+
+    <button
+      class="danger-button"
+      onclick="deleteCurrentCategory()"
+    >
+      このカテゴリーを削除
+    </button>
+
+  </section>
+
+
+  <!-- 対象詳細 -->
+  <section id="itemView" hidden>
+
+    <button
+      class="back-button"
+      onclick="openCategory(currentCategoryId)"
+    >
+      ← カテゴリー
+    </button>
+
+    <header>
+      <div>
+        <h1 id="itemTitle">
+          対象
+        </h1>
+
+        <div
+          id="itemCategory"
+          class="subtitle"
+        ></div>
+      </div>
+    </header>
+
+
+    <div class="detail-card">
+
+      <h2>📝 メモ</h2>
+
+      <div
+        id="itemMemoView"
+        class="muted"
+      ></div>
+
+      <div
+        id="itemTagsView"
+        class="tags"
+      ></div>
+
+    </div>
+
+
+    <div class="detail-card">
+
+      <h2>🕸️ 評価チャート</h2>
+
+      <div id="chartsContainer"></div>
+
+      <br>
+
+      <button
+        class="primary-button"
+        onclick="addChartComingSoon()"
+      >
+        ＋ 評価チャートを追加
+      </button>
+
+    </div>
+
+
+    <button
+      class="danger-button"
+      onclick="deleteCurrentItem()"
+    >
+      この記録を削除
+    </button>
+
+  </section>
 
 </main>
 
 
+<!-- 下ナビ -->
 <nav>
-  <button>
+
+  <button onclick="showHome()">
     <div class="nav-icon">🏠</div>
     ホーム
   </button>
 
-  <button>
+  <button onclick="showHome()">
     <div class="nav-icon">📁</div>
     カテゴリー
   </button>
 
-  <button onclick="openCategory()">
+  <button onclick="openCategoryCreator()">
     <div class="nav-icon">➕</div>
     追加
   </button>
 
-  <button>
+  <button onclick="alert('検索はもう少し待ってね！')">
     <div class="nav-icon">🔍</div>
     検索
   </button>
 
-  <button>
+  <button onclick="alert('設定もこれから作るぞ！')">
     <div class="nav-icon">⚙️</div>
     設定
   </button>
+
 </nav>
 
 
-<div id="categoryModal" class="overlay" onclick="outsideClose(event)">
+<!-- カテゴリー作成 -->
+<div
+  id="categoryModal"
+  class="overlay"
+  onclick="closeOnBackground(event, 'categoryModal')"
+>
 
   <div class="sheet">
 
     <div class="sheet-head">
+
       <h2>カテゴリーを作成</h2>
-      <button class="close" onclick="closeCategory()">×</button>
+
+      <button
+        class="close"
+        onclick="closeCategoryCreator()"
+      >
+        ×
+      </button>
+
     </div>
 
-    <label>カテゴリー名</label>
+
+    <label>
+      カテゴリー名
+    </label>
 
     <input
       id="categoryName"
-      class="name-input"
+      class="field"
       type="text"
       maxlength="30"
       placeholder="例：アニメキャラ"
     >
 
-    <label>アイコン</label>
 
-    <div class="emoji-picker" id="emojiPicker"></div>
+    <label>
+      アイコン
+    </label>
 
-    <button class="save" onclick="saveCategory()">
+    <div
+      id="emojiPicker"
+      class="emoji-picker"
+    ></div>
+
+
+    <button
+      class="save-button"
+      onclick="saveCategory()"
+    >
       カテゴリーを保存
     </button>
 
   </div>
+
 </div>
 
 
-<script>
+<!-- 対象作成 -->
+<div
+  id="itemModal"
+  class="overlay"
+  onclick="closeOnBackground(event, 'itemModal')"
+>
 
-const STORAGE_KEY = "myscale_categories_v1";
+  <div class="sheet">
 
-const emojiChoices = [
-  "🎬","🍜","🎮","👤","❤️","⭐",
-  "🚗","✈️","👟","🍺","📚","🎵",
-  "🍔","☕","🏨","⚽","💻","✨"
-];
+    <div class="sheet-head">
 
-let selectedEmoji = "⭐";
+      <h2 id="itemModalTitle">
+        対象を追加
+      </h2>
 
-let categories = JSON.parse(
-  localStorage.getItem(STORAGE_KEY) || "null"
-) || [
-  {
-    id: crypto.randomUUID(),
-    name: "アニメ",
-    emoji: "🎬",
-    count: 0
-  },
-  {
-    id: crypto.randomUUID(),
-    name: "ラーメン",
-    emoji: "🍜",
-    count: 0
-  },
-  {
-    id: crypto.randomUUID(),
-    name: "ゲーム",
-    emoji: "🎮",
-    count: 0
-  }
-];
-
-function persist() {
-  localStorage.setItem(
-    STORAGE_KEY,
-    JSON.stringify(categories)
-  );
-}
-
-function renderCategories() {
-
-  const grid = document.getElementById("categoryGrid");
-
-  grid.innerHTML = "";
-
-  categories.forEach(category => {
-
-    const card = document.createElement("div");
-
-    card.className = "category";
-
-    card.innerHTML = `
       <button
-        class="delete"
-        onclick="deleteCategory('${category.id}')"
-      >×</button>
+        class="close"
+        onclick="closeItemCreator()"
+      >
+        ×
+      </button>
 
-      <div class="emoji">${category.emoji}</div>
-
-      <h2>${escapeHTML(category.name)}</h2>
-
-      <div class="count">
-        ${category.count || 0}件の記録
-      </div>
-    `;
-
-    grid.appendChild(card);
-  });
+    </div>
 
 
-  const addCard = document.createElement("div");
+    <label>
+      名前
+    </label>
 
-  addCard.className = "category new-category";
+    <input
+      id="itemName"
+      class="field"
+      type="text"
+      maxlength="50"
+      placeholder="例：綾波レイ"
+    >
 
-  addCard.onclick = openCategory;
 
-  addCard.innerHTML = `
-    <div class="plus">＋</div>
-    <h2>カテゴリー作成</h2>
-  `;
+    <label>
+      メモ
+    </label>
 
-  grid.appendChild(addCard);
-}
+    <textarea
+      id="itemMemo"
+      class="field"
+      maxlength="500"
+      placeholder="好きなところ、気になったことなど"
+    ></textarea>
 
-function renderEmojiPicker() {
 
-  const picker = document.getElementById("emojiPicker");
+    <label>
+      タグ
+    </label>
 
-  picker.innerHTML = "";
+    <input
+      id="itemTags"
+      class="field"
+      type="text"
+      maxlength="100"
+      placeholder="例：推し 女性キャラ エヴァ"
+    >
 
-  emojiChoices.forEach(emoji => {
+    <div class="muted">
+      スペース区切りで複数登録できます
+    </div>
 
-    const button = document.createElement("button");
 
-    button.className =
-      "emoji-option" +
-      (emoji === selectedEmoji ? " selected" : "");
+    <button
+      class="save-button"
+      onclick="saveItem()"
+    >
+      保存
+    </button>
 
-    button.textContent = emoji;
+  </div>
 
-    button.onclick = () => {
-      selectedEmoji = emoji;
-      renderEmojiPicker();
-    };
+</div>
 
-    picker.appendChild(button);
-  });
-}
 
-function openCategory() {
-
-  selectedEmoji = "⭐";
-
-  document.getElementById("categoryName").value = "";
-
-  renderEmojiPicker();
-
-  document
-    .getElementById("categoryModal")
-    .classList.add("show");
-
-  setTimeout(() => {
-    document.getElementById("categoryName").focus();
-  }, 250);
-}
-
-function closeCategory() {
-
-  document
-    .getElementById("categoryModal")
-    .classList.remove("show");
-}
-
-function outsideClose(event) {
-
-  if (event.target.id === "categoryModal") {
-    closeCategory();
-  }
-}
-
-function saveCategory() {
-
-  const input = document.getElementById("categoryName");
-
-  const name = input.value.trim();
-
-  if (!name) {
-    alert("カテゴリー名を入力してね！");
-    return;
-  }
-
-  categories.push({
-    id: crypto.randomUUID(),
-    name,
-    emoji: selectedEmoji,
-    count: 0
-  });
-
-  persist();
-  renderCategories();
-  closeCategory();
-}
-
-function deleteCategory(id) {
-
-  const category = categories.find(c => c.id === id);
-
-  if (!category) return;
-
-  const ok = confirm(
-    `「${category.name}」を削除する？`
-  );
-
-  if (!ok) return;
-
-  categories = categories.filter(
-    category => category.id !== id
-  );
-
-  persist();
-  renderCategories();
-}
-
-function escapeHTML(value) {
-
-  return value.replace(
-    /[&<>"']/g,
-    char => ({
-      "&":"&amp;",
-      "<":"&lt;",
-      ">":"&gt;",
-      '"':"&quot;",
-      "'":"&#039;"
-    })[char]
-  );
-}
-
-persist();
-renderCategories();
-renderEmojiPicker();
-
-</script>
+<script src="app.js"></script>
 
 </body>
 </html>
