@@ -1844,3 +1844,250 @@ renderCharts = function() {
 addChartComingSoon = function() {
   openAddChartMenu();
 };
+/* =====================================
+   MyScale v0.5
+   カスタム情報項目
+===================================== */
+
+let selectedFieldType = null;
+
+function ensureCustomFields(item) {
+  if (!Array.isArray(item.customFields)) {
+    item.customFields = [];
+  }
+}
+
+function openAddFieldMenu() {
+  document
+    .getElementById("addFieldModal")
+    .classList.add("show");
+}
+
+function closeAddFieldMenu() {
+  document
+    .getElementById("addFieldModal")
+    .classList.remove("show");
+}
+
+function chooseFieldType(type) {
+  selectedFieldType = type;
+
+  closeAddFieldMenu();
+
+  document.getElementById("fieldLabel").value = "";
+  document.getElementById("fieldValue").value = "";
+
+  const valueInput =
+    document.getElementById("fieldValue");
+
+  const yesNoArea =
+    document.getElementById("yesNoArea");
+
+  valueInput.hidden = false;
+  yesNoArea.hidden = true;
+
+  if (type === "text") {
+    document.getElementById(
+      "fieldEditorTitle"
+    ).textContent = "📝 テキスト項目";
+
+    valueInput.placeholder =
+      "例：ツンデレ";
+  }
+
+  if (type === "number") {
+    document.getElementById(
+      "fieldEditorTitle"
+    ).textContent = "🔢 数値項目";
+
+    valueInput.placeholder =
+      "例：157 cm";
+  }
+
+  if (type === "boolean") {
+    document.getElementById(
+      "fieldEditorTitle"
+    ).textContent = "☑️ Yes / No";
+
+    valueInput.hidden = true;
+    yesNoArea.hidden = false;
+
+    document.querySelector(
+      'input[name="booleanValue"][value="yes"]'
+    ).checked = true;
+  }
+
+  document
+    .getElementById("fieldEditorModal")
+    .classList.add("show");
+}
+
+function closeFieldEditor() {
+  document
+    .getElementById("fieldEditorModal")
+    .classList.remove("show");
+
+  selectedFieldType = null;
+}
+
+function saveCustomField() {
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+  if (!item) return;
+
+  ensureCustomFields(item);
+
+  const label =
+    document.getElementById("fieldLabel")
+      .value.trim();
+
+  if (!label) {
+    alert("項目名を入力してね！");
+    return;
+  }
+
+  let value = "";
+
+  if (selectedFieldType === "boolean") {
+    value =
+      document.querySelector(
+        'input[name="booleanValue"]:checked'
+      )?.value || "yes";
+  } else {
+    value =
+      document.getElementById("fieldValue")
+        .value.trim();
+
+    if (!value) {
+      alert("内容を入力してね！");
+      return;
+    }
+  }
+
+  item.customFields.push({
+    id: makeId(),
+    type: selectedFieldType,
+    label,
+    value,
+    createdAt: Date.now()
+  });
+
+  item.updatedAt = Date.now();
+
+  persist();
+
+  closeFieldEditor();
+  renderCustomFields();
+}
+
+function renderCustomFields() {
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+  const container =
+    document.getElementById(
+      "customFieldsContainer"
+    );
+
+  if (!container || !item) return;
+
+  ensureCustomFields(item);
+
+  container.innerHTML = "";
+
+  if (!item.customFields.length) {
+    container.innerHTML = `
+      <div class="custom-empty">
+        まだ情報項目がありません
+      </div>
+    `;
+    return;
+  }
+
+  item.customFields.forEach(field => {
+    const row =
+      document.createElement("div");
+
+    row.className = "custom-field-row";
+
+    let displayValue =
+      escapeHTML(field.value);
+
+    if (field.type === "boolean") {
+      displayValue =
+        field.value === "yes"
+          ? "YES"
+          : "NO";
+    }
+
+    row.innerHTML = `
+      <div class="custom-field-main">
+        <span>
+          ${escapeHTML(field.label)}
+        </span>
+
+        <strong>
+          ${displayValue}
+        </strong>
+      </div>
+
+      <button
+        class="custom-field-delete"
+        onclick="
+          deleteCustomField('${field.id}')
+        "
+      >
+        •••
+      </button>
+    `;
+
+    container.appendChild(row);
+  });
+}
+
+function deleteCustomField(fieldId) {
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+  if (!item) return;
+
+  ensureCustomFields(item);
+
+  const field =
+    item.customFields.find(
+      field => field.id === fieldId
+    );
+
+  if (!field) return;
+
+  if (
+    !confirm(
+      `「${field.label}」を削除する？`
+    )
+  ) {
+    return;
+  }
+
+  item.customFields =
+    item.customFields.filter(
+      field => field.id !== fieldId
+    );
+
+  persist();
+  renderCustomFields();
+}
+
+
+/* 対象詳細表示にカスタム項目描画を追加 */
+
+const renderItemDetailBeforeV05 =
+  renderItemDetail;
+
+renderItemDetail = function() {
+  renderItemDetailBeforeV05();
+  renderCustomFields();
+};
