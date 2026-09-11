@@ -910,6 +910,61 @@
 
   </div>
 </div> 
+  <!-- =========================
+     v0.6.2 対象情報編集
+========================= -->
+
+<div
+  id="itemInfoEditorModal"
+  class="overlay"
+  onclick="closeOnBackground(event, 'itemInfoEditorModal')"
+>
+  <div class="sheet">
+
+    <div class="sheet-head">
+      <h2>👤 対象情報を編集</h2>
+
+      <button
+        class="close"
+        onclick="closeItemInfoEditor()"
+      >
+        ×
+      </button>
+    </div>
+
+    <label>名前</label>
+
+    <input
+      id="itemInfoName"
+      class="field"
+      type="text"
+      maxlength="50"
+      placeholder="例：アスカ"
+    >
+
+    <label>アイコン</label>
+
+    <div
+      id="itemInfoEmojiChoices"
+      class="emoji-grid"
+    ></div>
+
+    <label>カテゴリー</label>
+
+    <select
+      id="itemInfoCategory"
+      class="field"
+    ></select>
+
+    <button
+      class="save-button"
+      onclick="saveItemInfoEdit()"
+    >
+      保存
+    </button>
+
+  </div>
+</div>
   <script src="app.js?v=061"></script>
 
 </body>
