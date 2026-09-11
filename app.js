@@ -2848,3 +2848,205 @@ function saveItemInfoEdit() {
   renderItemDetail();
   applyItemEditMode();
 }
+/* =========================
+   MyScale v0.7
+   詳細カード並び替え
+========================= */
+
+const DEFAULT_SECTION_ORDER = [
+  "memo",
+  "info",
+  "charts"
+];
+
+function ensureSectionOrder(item) {
+  if (
+    !Array.isArray(item.sectionOrder) ||
+    item.sectionOrder.length !== 3
+  ) {
+    item.sectionOrder = [
+      ...DEFAULT_SECTION_ORDER
+    ];
+  }
+}
+
+
+function applySectionOrder() {
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+  if (!item) return;
+
+  ensureSectionOrder(item);
+
+  const cards = {};
+
+  document
+    .querySelectorAll(
+      "#itemView .reorder-card"
+    )
+    .forEach(card => {
+      cards[card.dataset.section] = card;
+    });
+
+  const firstCard =
+    cards[
+      item.sectionOrder[0]
+    ];
+
+  if (!firstCard) return;
+
+  const parent =
+    firstCard.parentElement;
+
+  item.sectionOrder.forEach(
+    section => {
+      const card = cards[section];
+
+      if (card) {
+        parent.appendChild(card);
+      }
+    }
+  );
+
+  renderSectionControls();
+}
+
+
+function renderSectionControls() {
+  document
+    .querySelectorAll(
+      ".section-order-controls"
+    )
+    .forEach(el => el.remove());
+
+  if (!itemEditMode) return;
+
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+  if (!item) return;
+
+  ensureSectionOrder(item);
+
+  item.sectionOrder.forEach(
+    (section, index) => {
+
+      const card =
+        document.querySelector(
+          `.reorder-card[data-section="${section}"]`
+        );
+
+      if (!card) return;
+
+      const controls =
+        document.createElement("div");
+
+      controls.className =
+        "section-order-controls";
+
+      const up =
+        document.createElement("button");
+
+      up.type = "button";
+      up.textContent = "↑";
+      up.disabled = index === 0;
+
+      up.onclick = function() {
+        moveSection(section, -1);
+      };
+
+      const down =
+        document.createElement("button");
+
+      down.type = "button";
+      down.textContent = "↓";
+
+      down.disabled =
+        index ===
+        item.sectionOrder.length - 1;
+
+      down.onclick = function() {
+        moveSection(section, 1);
+      };
+
+      controls.appendChild(up);
+      controls.appendChild(down);
+
+      card.prepend(controls);
+    }
+  );
+}
+
+
+function moveSection(section, direction) {
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+  if (!item) return;
+
+  ensureSectionOrder(item);
+
+  const index =
+    item.sectionOrder.indexOf(section);
+
+  const nextIndex =
+    index + direction;
+
+  if (
+    index < 0 ||
+    nextIndex < 0 ||
+    nextIndex >=
+      item.sectionOrder.length
+  ) {
+    return;
+  }
+
+  const newOrder = [
+    ...item.sectionOrder
+  ];
+
+  [
+    newOrder[index],
+    newOrder[nextIndex]
+  ] = [
+    newOrder[nextIndex],
+    newOrder[index]
+  ];
+
+  item.sectionOrder = newOrder;
+  item.updatedAt = Date.now();
+
+  persist();
+
+  applySectionOrder();
+}
+
+
+/* -------------------------
+   編集モードとの連動
+------------------------- */
+
+const applyItemEditModeBeforeV07 =
+  applyItemEditMode;
+
+applyItemEditMode = function() {
+  applyItemEditModeBeforeV07();
+  renderSectionControls();
+};
+
+
+/* -------------------------
+   対象詳細表示との連動
+------------------------- */
+
+const renderItemDetailBeforeV07 =
+  renderItemDetail;
+
+renderItemDetail = function() {
+  renderItemDetailBeforeV07();
+  applySectionOrder();
+};
