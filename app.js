@@ -604,7 +604,514 @@ function closeOnBackground(event, modalId) {
 /* --------------------
    起動
 -------------------- */
+/* =========================
+   v0.3 評価チャート
+========================= */
 
+let draftAxes = [
+  { name: "魅力", value: 3 },
+  { name: "デザイン", value: 3 },
+  { name: "活躍", value: 3 },
+  { name: "個性", value: 3 },
+  { name: "推し度", value: 3 }
+];
+
+function openChartCreator() {
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+  if (!item) return;
+
+  document.getElementById("chartName").value = "";
+
+  document.getElementById("chartMax").value = "5";
+
+  draftAxes = [
+    { name: "魅力", value: 3 },
+    { name: "デザイン", value: 3 },
+    { name: "活躍", value: 3 },
+    { name: "個性", value: 3 },
+    { name: "推し度", value: 3 }
+  ];
+
+  renderAxisEditor();
+
+  document
+    .getElementById("chartModal")
+    .classList.add("show");
+}
+
+
+function closeChartCreator() {
+  document
+    .getElementById("chartModal")
+    .classList.remove("show");
+}
+
+
+function renderAxisEditor() {
+  const container =
+    document.getElementById("axisEditor");
+
+  if (!container) return;
+
+  const max =
+    Number(
+      document.getElementById("chartMax")?.value || 5
+    );
+
+  container.innerHTML = "";
+
+  draftAxes.forEach((axis, index) => {
+    const row = document.createElement("div");
+
+    row.className = "axis-editor-row";
+
+    row.innerHTML = `
+      <div class="axis-top">
+
+        <input
+          class="axis-name"
+          type="text"
+          maxlength="20"
+          value="${escapeHTML(axis.name)}"
+          placeholder="評価項目"
+          oninput="changeAxisName(${index}, this.value)"
+        >
+
+        <button
+          class="axis-remove"
+          type="button"
+          onclick="removeAxis(${index})"
+        >
+          ×
+        </button>
+
+      </div>
+
+      <div class="axis-score-row">
+
+        <input
+          type="range"
+          min="0"
+          max="${max}"
+          step="0.1"
+          value="${Math.min(axis.value, max)}"
+          oninput="changeAxisValue(${index}, this.value)"
+        >
+
+        <strong id="axisValue${index}">
+          ${Math.min(axis.value, max).toFixed(1)}
+        </strong>
+
+      </div>
+    `;
+
+    container.appendChild(row);
+  });
+}
+
+
+function changeAxisName(index, value) {
+  if (!draftAxes[index]) return;
+
+  draftAxes[index].name = value;
+}
+
+
+function changeAxisValue(index, value) {
+  if (!draftAxes[index]) return;
+
+  draftAxes[index].value = Number(value);
+
+  const label =
+    document.getElementById(`axisValue${index}`);
+
+  if (label) {
+    label.textContent =
+      Number(value).toFixed(1);
+  }
+}
+
+
+function addAxis() {
+  if (draftAxes.length >= 10) {
+    alert("評価軸は最大10個まで！");
+    return;
+  }
+
+  draftAxes.push({
+    name: "",
+    value: 3
+  });
+
+  renderAxisEditor();
+}
+
+
+function removeAxis(index) {
+  if (draftAxes.length <= 3) {
+    alert("レーダーチャートには最低3項目必要だよ！");
+    return;
+  }
+
+  draftAxes.splice(index, 1);
+
+  renderAxisEditor();
+}
+
+
+function chartMaxChanged() {
+  const max =
+    Number(
+      document.getElementById("chartMax").value
+    );
+
+  draftAxes = draftAxes.map(axis => ({
+    ...axis,
+    value: Math.min(axis.value, max)
+  }));
+
+  renderAxisEditor();
+}
+
+
+function saveChart() {
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+  if (!item) return;
+
+  const name =
+    document.getElementById("chartName")
+      .value.trim();
+
+  const max =
+    Number(
+      document.getElementById("chartMax").value
+    );
+
+  if (!name) {
+    alert("チャート名を入力してね！");
+    return;
+  }
+
+  const cleanAxes = draftAxes
+    .map(axis => ({
+      name: axis.name.trim(),
+      value: Number(axis.value)
+    }))
+    .filter(axis => axis.name);
+
+  if (cleanAxes.length < 3) {
+    alert("評価項目を3つ以上作ってね！");
+    return;
+  }
+
+  item.charts = item.charts || [];
+
+  item.charts.push({
+    id: makeId(),
+    name,
+    max,
+    axes: cleanAxes,
+    createdAt: Date.now()
+  });
+
+  item.updatedAt = Date.now();
+
+  persist();
+
+  closeChartCreator();
+
+  renderCharts();
+}
+
+
+function deleteChart(chartId) {
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+  if (!item) return;
+
+  const chart = item.charts?.find(
+    chart => chart.id === chartId
+  );
+
+  if (!chart) return;
+
+  if (!confirm(`「${chart.name}」を削除する？`)) {
+    return;
+  }
+
+  item.charts = item.charts.filter(
+    chart => chart.id !== chartId
+  );
+
+  persist();
+
+  renderCharts();
+}
+
+
+/* レーダーチャートをSVGで描画 */
+
+function createRadarSVG(chart) {
+  const size = 300;
+  const center = 150;
+  const radius = 92;
+
+  const count = chart.axes.length;
+
+  if (count < 3) return "";
+
+  function point(index, ratio) {
+    const angle =
+      -Math.PI / 2 +
+      (Math.PI * 2 * index / count);
+
+    return {
+      x: center +
+        Math.cos(angle) * radius * ratio,
+
+      y: center +
+        Math.sin(angle) * radius * ratio
+    };
+  }
+
+  let grid = "";
+
+  for (let level = 1; level <= 5; level++) {
+    const ratio = level / 5;
+
+    const points = chart.axes
+      .map((_, index) => {
+        const p = point(index, ratio);
+
+        return `${p.x},${p.y}`;
+      })
+      .join(" ");
+
+    grid += `
+      <polygon
+        points="${points}"
+        fill="none"
+        stroke="#dedee8"
+        stroke-width="1"
+      />
+    `;
+  }
+
+
+  const axisLines = chart.axes
+    .map((_, index) => {
+      const p = point(index, 1);
+
+      return `
+        <line
+          x1="${center}"
+          y1="${center}"
+          x2="${p.x}"
+          y2="${p.y}"
+          stroke="#dedee8"
+          stroke-width="1"
+        />
+      `;
+    })
+    .join("");
+
+
+  const valuePoints = chart.axes
+    .map((axis, index) => {
+      const ratio =
+        Math.max(
+          0,
+          Math.min(1, axis.value / chart.max)
+        );
+
+      const p = point(index, ratio);
+
+      return `${p.x},${p.y}`;
+    })
+    .join(" ");
+
+
+  const dots = chart.axes
+    .map((axis, index) => {
+      const ratio =
+        Math.max(
+          0,
+          Math.min(1, axis.value / chart.max)
+        );
+
+      const p = point(index, ratio);
+
+      return `
+        <circle
+          cx="${p.x}"
+          cy="${p.y}"
+          r="3.5"
+          fill="#6557d9"
+        />
+      `;
+    })
+    .join("");
+
+
+  const labels = chart.axes
+    .map((axis, index) => {
+      const p = point(index, 1.28);
+
+      let anchor = "middle";
+
+      if (p.x < center - 20) {
+        anchor = "end";
+      }
+
+      if (p.x > center + 20) {
+        anchor = "start";
+      }
+
+      return `
+        <text
+          x="${p.x}"
+          y="${p.y}"
+          text-anchor="${anchor}"
+          dominant-baseline="middle"
+          font-size="11"
+          fill="#555665"
+        >
+          ${escapeHTML(axis.name)}
+        </text>
+
+        <text
+          x="${p.x}"
+          y="${p.y + 14}"
+          text-anchor="${anchor}"
+          dominant-baseline="middle"
+          font-size="11"
+          font-weight="700"
+          fill="#202235"
+        >
+          ${axis.value.toFixed(1)}
+        </text>
+      `;
+    })
+    .join("");
+
+
+  return `
+    <svg
+      class="radar-svg"
+      viewBox="0 0 ${size} ${size}"
+      role="img"
+      aria-label="${escapeHTML(chart.name)}"
+    >
+      ${grid}
+
+      ${axisLines}
+
+      <polygon
+        points="${valuePoints}"
+        fill="rgba(101,87,217,.22)"
+        stroke="#6557d9"
+        stroke-width="2"
+      />
+
+      ${dots}
+
+      ${labels}
+    </svg>
+  `;
+}
+
+
+/* 既存のrenderChartsをv0.3版に上書き */
+
+function renderCharts() {
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+  const container =
+    document.getElementById("chartsContainer");
+
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  if (!item?.charts?.length) {
+    container.innerHTML = `
+      <div class="chart-placeholder">
+        🕸️
+        <br><br>
+
+        まだ評価チャートがありません
+
+        <br>
+
+        <small>
+          好きな評価軸を作って
+          自分だけのチャートを作ろう
+        </small>
+      </div>
+    `;
+
+    return;
+  }
+
+
+  item.charts.forEach(chart => {
+    const average =
+      chart.axes.reduce(
+        (sum, axis) => sum + axis.value,
+        0
+      ) / chart.axes.length;
+
+    const card =
+      document.createElement("div");
+
+    card.className = "radar-card";
+
+    card.innerHTML = `
+      <div class="radar-head">
+
+        <div>
+          <h3>
+            ${escapeHTML(chart.name)}
+          </h3>
+
+          <div class="chart-average">
+            ⭐ ${average.toFixed(1)}
+            <span>/ ${chart.max}</span>
+          </div>
+        </div>
+
+        <button
+          class="chart-delete"
+          onclick="deleteChart('${chart.id}')"
+        >
+          •••
+        </button>
+
+      </div>
+
+      ${createRadarSVG(chart)}
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+
+/* 旧ボタンの動作も本物に変更 */
+
+function addChartComingSoon() {
+  openChartCreator();
+}
 persist();
 renderEmojiPicker();
 showHome();
