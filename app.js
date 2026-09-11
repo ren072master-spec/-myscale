@@ -2091,3 +2091,49 @@ renderItemDetail = function() {
   renderItemDetailBeforeV05();
   renderCustomFields();
 };
+/* =========================
+   MyScale v0.5.1
+   閲覧 / 編集モード
+========================= */
+
+let itemEditMode = false;
+
+function applyItemEditMode() {
+  const itemView =
+    document.getElementById("itemView");
+
+  const editButton =
+    document.getElementById("itemEditButton");
+
+  if (!itemView || !editButton) return;
+
+  itemView.classList.toggle(
+    "edit-mode",
+    itemEditMode
+  );
+
+  editButton.textContent =
+    itemEditMode ? "完了" : "編集";
+}
+
+function toggleItemEditMode() {
+  itemEditMode = !itemEditMode;
+
+  applyItemEditMode();
+
+  renderCustomFields();
+  renderCharts();
+}
+
+
+/* 対象を開いた時は必ず閲覧モード */
+
+const openItemBeforeV051 = openItem;
+
+openItem = function(id) {
+  itemEditMode = false;
+
+  openItemBeforeV051(id);
+
+  applyItemEditMode();
+};
