@@ -584,7 +584,136 @@
   </div>
 
 </div>
-<script src="app.js"></script>
+<!-- v0.5 情報項目タイプ選択 -->
+<div
+  id="addFieldModal"
+  class="overlay"
+  onclick="closeOnBackground(event, 'addFieldModal')"
+>
+  <div class="sheet">
+
+    <div class="sheet-head">
+      <h2>情報項目を追加</h2>
+
+      <button
+        class="close"
+        onclick="closeAddFieldMenu()"
+      >
+        ×
+      </button>
+    </div>
+
+    <button
+      class="action-card"
+      onclick="chooseFieldType('text')"
+    >
+      <span class="action-icon">📝</span>
+      <span>
+        <strong>テキスト</strong>
+        <small>属性、所属、好きなものなど</small>
+      </span>
+    </button>
+
+    <button
+      class="action-card"
+      onclick="chooseFieldType('number')"
+    >
+      <span class="action-icon">🔢</span>
+      <span>
+        <strong>数値</strong>
+        <small>身長、価格、話数など</small>
+      </span>
+    </button>
+
+    <button
+      class="action-card"
+      onclick="chooseFieldType('boolean')"
+    >
+      <span class="action-icon">☑️</span>
+      <span>
+        <strong>Yes / No</strong>
+        <small>推し？ 購入済み？など</small>
+      </span>
+    </button>
+
+  </div>
+</div>
+
+
+<!-- v0.5 情報項目入力 -->
+<div
+  id="fieldEditorModal"
+  class="overlay"
+  onclick="closeOnBackground(event, 'fieldEditorModal')"
+>
+  <div class="sheet">
+
+    <div class="sheet-head">
+      <h2 id="fieldEditorTitle">情報項目</h2>
+
+      <button
+        class="close"
+        onclick="closeFieldEditor()"
+      >
+        ×
+      </button>
+    </div>
+
+    <label>項目名</label>
+
+    <input
+      id="fieldLabel"
+      class="field"
+      type="text"
+      maxlength="30"
+      placeholder="例：身長"
+    >
+
+    <label>内容</label>
+
+    <input
+      id="fieldValue"
+      class="field"
+      type="text"
+      maxlength="100"
+      placeholder="例：157 cm"
+    >
+
+    <div
+      id="yesNoArea"
+      class="yes-no-area"
+      hidden
+    >
+      <label class="yes-no-option">
+        <input
+          type="radio"
+          name="booleanValue"
+          value="yes"
+          checked
+        >
+        YES
+      </label>
+
+      <label class="yes-no-option">
+        <input
+          type="radio"
+          name="booleanValue"
+          value="no"
+        >
+        NO
+      </label>
+    </div>
+
+    <button
+      class="save-button"
+      onclick="saveCustomField()"
+    >
+      保存
+    </button>
+
+  </div>
+</div>
+  <script src="app.js"></script>
 
 </body>
 </html>
