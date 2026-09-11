@@ -1350,3 +1350,497 @@ renderCharts = function() {
     container.appendChild(card);
   });
 };
+/* =====================================
+   MyScale v0.4
+   テンプレート機能
+===================================== */
+
+const TEMPLATE_KEY = "myscale_chart_templates_v1";
+
+let chartTemplates = loadData(TEMPLATE_KEY, []);
+
+let selectedChartActionId = null;
+
+
+/* -------------------------
+   テンプレート保存
+------------------------- */
+
+function persistTemplates() {
+  localStorage.setItem(
+    TEMPLATE_KEY,
+    JSON.stringify(chartTemplates)
+  );
+}
+
+
+function saveChartAsTemplate(chartId) {
+
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+  const chart = item?.charts?.find(
+    chart => chart.id === chartId
+  );
+
+  if (!chart) return;
+
+
+  const exists = chartTemplates.some(
+    template =>
+      template.name === chart.name
+  );
+
+
+  if (exists) {
+
+    const overwrite = confirm(
+      `「${chart.name}」というテンプレートは既にあります。\n\nもう1つ保存する？`
+    );
+
+    if (!overwrite) return;
+  }
+
+
+  chartTemplates.push({
+
+    id: makeId(),
+
+    name: chart.name,
+
+    max: chart.max,
+
+    axes: chart.axes.map(axis => ({
+      name: axis.name
+    })),
+
+    createdAt: Date.now()
+
+  });
+
+
+  persistTemplates();
+
+  closeChartActionMenu();
+
+  alert(
+    `🧩「${chart.name}」をテンプレートに保存したよ！`
+  );
+}
+
+
+/* -------------------------
+   チャート•••メニュー
+------------------------- */
+
+function openChartActionMenu(chartId) {
+
+  selectedChartActionId = chartId;
+
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+  const chart = item?.charts?.find(
+    chart => chart.id === chartId
+  );
+
+  if (!chart) return;
+
+
+  document.getElementById(
+    "chartActionTitle"
+  ).textContent = chart.name;
+
+
+  document
+    .getElementById("chartActionModal")
+    .classList.add("show");
+}
+
+
+function closeChartActionMenu() {
+
+  document
+    .getElementById("chartActionModal")
+    .classList.remove("show");
+
+  selectedChartActionId = null;
+}
+
+
+function actionEditChart() {
+
+  const id = selectedChartActionId;
+
+  closeChartActionMenu();
+
+  editChart(id);
+}
+
+
+function actionDuplicateChart() {
+
+  const id = selectedChartActionId;
+
+  closeChartActionMenu();
+
+  duplicateChart(id);
+}
+
+
+function actionSaveTemplate() {
+
+  const id = selectedChartActionId;
+
+  saveChartAsTemplate(id);
+}
+
+
+function actionDeleteChart() {
+
+  const id = selectedChartActionId;
+
+  closeChartActionMenu();
+
+  deleteChart(id);
+}
+
+
+/* -------------------------
+   ＋評価チャート
+------------------------- */
+
+function openAddChartMenu() {
+
+  document
+    .getElementById("addChartModal")
+    .classList.add("show");
+}
+
+
+function closeAddChartMenu() {
+
+  document
+    .getElementById("addChartModal")
+    .classList.remove("show");
+}
+
+
+function createNewChartFromMenu() {
+
+  closeAddChartMenu();
+
+  openChartCreator();
+}
+
+
+/* -------------------------
+   テンプレート一覧
+------------------------- */
+
+function openTemplatePicker() {
+
+  closeAddChartMenu();
+
+  renderTemplateList();
+
+  document
+    .getElementById("templateModal")
+    .classList.add("show");
+}
+
+
+function closeTemplatePicker() {
+
+  document
+    .getElementById("templateModal")
+    .classList.remove("show");
+}
+
+
+function renderTemplateList() {
+
+  const container =
+    document.getElementById("templateList");
+
+  container.innerHTML = "";
+
+
+  if (!chartTemplates.length) {
+
+    container.innerHTML = `
+      <div class="empty">
+        <strong>
+          まだテンプレートがありません
+        </strong>
+
+        <span>
+          作成済みチャートの•••から
+          テンプレートとして保存できます
+        </span>
+      </div>
+    `;
+
+    return;
+  }
+
+
+  chartTemplates.forEach(template => {
+
+    const button =
+      document.createElement("button");
+
+    button.className = "template-card";
+
+
+    button.innerHTML = `
+
+      <div class="template-icon">
+        🧩
+      </div>
+
+      <div class="template-info">
+
+        <strong>
+          ${escapeHTML(template.name)}
+        </strong>
+
+        <span>
+          ${template.axes.length}項目・
+          ${template.max}点満点
+        </span>
+
+      </div>
+
+      <div class="template-arrow">
+        ›
+      </div>
+
+    `;
+
+
+    button.onclick = () =>
+      useTemplate(template.id);
+
+
+    container.appendChild(button);
+
+  });
+
+}
+
+
+/* -------------------------
+   テンプレート使用
+------------------------- */
+
+function useTemplate(templateId) {
+
+  const template =
+    chartTemplates.find(
+      template =>
+        template.id === templateId
+    );
+
+
+  if (!template) return;
+
+
+  editingChartId = null;
+
+
+  document.getElementById(
+    "chartName"
+  ).value = template.name;
+
+
+  document.getElementById(
+    "chartMax"
+  ).value = String(template.max);
+
+
+  const defaultValue =
+    template.max === 10 ? 5 : 3;
+
+
+  draftAxes =
+    template.axes.map(axis => ({
+
+      name: axis.name,
+
+      value: defaultValue
+
+    }));
+
+
+  closeTemplatePicker();
+
+  renderAxisEditor();
+
+
+  document
+    .getElementById("chartModal")
+    .classList.add("show");
+}
+
+
+/* -------------------------
+   テンプレート削除
+------------------------- */
+
+function deleteTemplate(templateId) {
+
+  const template =
+    chartTemplates.find(
+      template =>
+        template.id === templateId
+    );
+
+
+  if (!template) return;
+
+
+  if (
+    !confirm(
+      `テンプレート「${template.name}」を削除する？`
+    )
+  ) {
+    return;
+  }
+
+
+  chartTemplates =
+    chartTemplates.filter(
+      template =>
+        template.id !== templateId
+    );
+
+
+  persistTemplates();
+
+  renderTemplateList();
+}
+
+
+/* -------------------------
+   renderCharts v0.4
+------------------------- */
+
+renderCharts = function() {
+
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+
+  const container =
+    document.getElementById(
+      "chartsContainer"
+    );
+
+
+  if (!container) return;
+
+
+  container.innerHTML = "";
+
+
+  if (!item?.charts?.length) {
+
+    container.innerHTML = `
+
+      <div class="chart-placeholder">
+
+        🕸️
+
+        <br><br>
+
+        まだ評価チャートがありません
+
+        <br>
+
+        <small>
+          新しく作るか、
+          保存したテンプレートを使ってみよう
+        </small>
+
+      </div>
+
+    `;
+
+    return;
+  }
+
+
+  item.charts.forEach(chart => {
+
+    const average =
+      chart.axes.reduce(
+        (sum, axis) =>
+          sum + axis.value,
+        0
+      ) / chart.axes.length;
+
+
+    const card =
+      document.createElement("div");
+
+
+    card.className =
+      "radar-card";
+
+
+    card.innerHTML = `
+
+      <div class="radar-head">
+
+        <div>
+
+          <h3>
+            ${escapeHTML(chart.name)}
+          </h3>
+
+          <div class="chart-average">
+
+            ⭐ ${average.toFixed(1)}
+
+            <span>
+              / ${chart.max}
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <button
+          class="chart-delete"
+          onclick="
+            openChartActionMenu('${chart.id}')
+          "
+        >
+          •••
+        </button>
+
+      </div>
+
+
+      ${createRadarSVG(chart)}
+
+    `;
+
+
+    container.appendChild(card);
+
+  });
+
+};
+
+
+/* 既存の追加ボタンをv0.4へ */
+
+addChartComingSoon = function() {
+  openAddChartMenu();
+};
