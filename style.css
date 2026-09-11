@@ -348,3 +348,111 @@ nav button {
     grid-template-columns: 1fr;
   }
 }
+/* v0.3 レーダーチャート */
+
+.axis-editor-row {
+  background: #f8f8fb;
+  border-radius: 16px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.axis-top {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.axis-name {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: white;
+  border-radius: 10px;
+  padding: 11px;
+  font-size: 15px;
+}
+
+.axis-remove {
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 50%;
+  background: #eeeeF3;
+  color: #777;
+  font-size: 20px;
+}
+
+.axis-score-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.axis-score-row input[type="range"] {
+  flex: 1;
+  accent-color: var(--purple);
+}
+
+.axis-score-row strong {
+  min-width: 36px;
+  text-align: right;
+}
+
+.axis-add-button {
+  width: 100%;
+  border: 2px dashed #d4d4dc;
+  border-radius: 14px;
+  padding: 13px;
+  background: transparent;
+  color: var(--purple);
+  font-weight: 700;
+}
+
+.radar-card {
+  background: #fafafe;
+  border: 1px solid #ededf3;
+  border-radius: 20px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.radar-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.radar-head h3 {
+  margin: 0 0 5px;
+  font-size: 18px;
+}
+
+.chart-average {
+  color: #202235;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.chart-average span {
+  color: var(--sub);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.chart-delete {
+  border: 0;
+  background: #eeeeF3;
+  border-radius: 999px;
+  padding: 6px 10px;
+  color: #777;
+}
+
+.radar-svg {
+  display: block;
+  width: 100%;
+  max-width: 330px;
+  margin: 8px auto 0;
+  overflow: visible;
+}
