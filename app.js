@@ -2331,3 +2331,310 @@ document
     }
 
   });
+/* =========================
+   MyScale v0.6
+   基本情報 編集 / 削除
+========================= */
+
+let selectedCustomFieldId = null;
+let editingCustomFieldId = null;
+
+
+/* -------------------------
+   ••• メニューを開く
+------------------------- */
+
+function openFieldActionMenu(fieldId) {
+
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+  if (!item) return;
+
+  ensureCustomFields(item);
+
+  const field = item.customFields.find(
+    field => field.id === fieldId
+  );
+
+  if (!field) return;
+
+  selectedCustomFieldId = fieldId;
+
+  document.getElementById(
+    "fieldActionTitle"
+  ).textContent = field.label;
+
+  document
+    .getElementById("fieldActionModal")
+    .classList.add("show");
+}
+
+
+function closeFieldActionMenu() {
+
+  document
+    .getElementById("fieldActionModal")
+    ?.classList.remove("show");
+
+  selectedCustomFieldId = null;
+}
+
+
+/* -------------------------
+   編集
+------------------------- */
+
+function actionEditCustomField() {
+
+  const fieldId = selectedCustomFieldId;
+
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+  const field = item?.customFields?.find(
+    field => field.id === fieldId
+  );
+
+  if (!field) return;
+
+  editingCustomFieldId = fieldId;
+
+  closeFieldActionMenu();
+
+  selectedFieldType = field.type;
+
+  document.getElementById(
+    "fieldLabel"
+  ).value = field.label;
+
+  const valueInput =
+    document.getElementById("fieldValue");
+
+  const yesNoArea =
+    document.getElementById("yesNoArea");
+
+  valueInput.hidden = false;
+  yesNoArea.hidden = true;
+
+  if (field.type === "text") {
+
+    document.getElementById(
+      "fieldEditorTitle"
+    ).textContent = "📝 テキスト項目を編集";
+
+    valueInput.value = field.value;
+  }
+
+  if (field.type === "number") {
+
+    document.getElementById(
+      "fieldEditorTitle"
+    ).textContent = "🔢 数値項目を編集";
+
+    valueInput.value = field.value;
+  }
+
+  if (field.type === "boolean") {
+
+    document.getElementById(
+      "fieldEditorTitle"
+    ).textContent = "☑️ Yes / No を編集";
+
+    valueInput.hidden = true;
+    yesNoArea.hidden = false;
+
+    const radio = document.querySelector(
+      `input[name="booleanValue"][value="${field.value}"]`
+    );
+
+    if (radio) {
+      radio.checked = true;
+    }
+  }
+
+  document
+    .getElementById("fieldEditorModal")
+    .classList.add("show");
+}
+
+
+/* -------------------------
+   削除
+------------------------- */
+
+function actionDeleteCustomField() {
+
+  const fieldId = selectedCustomFieldId;
+
+  closeFieldActionMenu();
+
+  deleteCustomField(fieldId);
+}
+
+
+/* -------------------------
+   既存保存処理を編集対応へ
+------------------------- */
+
+const saveCustomFieldBeforeV06 =
+  saveCustomField;
+
+saveCustomField = function() {
+
+  if (!editingCustomFieldId) {
+    saveCustomFieldBeforeV06();
+    return;
+  }
+
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+  if (!item) return;
+
+  ensureCustomFields(item);
+
+  const field = item.customFields.find(
+    field => field.id === editingCustomFieldId
+  );
+
+  if (!field) return;
+
+  const label =
+    document.getElementById("fieldLabel")
+      .value.trim();
+
+  if (!label) {
+    alert("項目名を入力してね！");
+    return;
+  }
+
+  let value = "";
+
+  if (field.type === "boolean") {
+
+    value =
+      document.querySelector(
+        'input[name="booleanValue"]:checked'
+      )?.value || "yes";
+
+  } else {
+
+    value =
+      document.getElementById("fieldValue")
+        .value.trim();
+
+    if (!value) {
+      alert("内容を入力してね！");
+      return;
+    }
+  }
+
+  field.label = label;
+  field.value = value;
+  field.updatedAt = Date.now();
+
+  item.updatedAt = Date.now();
+
+  persist();
+
+  editingCustomFieldId = null;
+
+  closeFieldEditor();
+
+  renderCustomFields();
+};
+
+
+/* -------------------------
+   新規追加時は編集状態解除
+------------------------- */
+
+const chooseFieldTypeBeforeV06 =
+  chooseFieldType;
+
+chooseFieldType = function(type) {
+
+  editingCustomFieldId = null;
+
+  chooseFieldTypeBeforeV06(type);
+};
+
+
+/* -------------------------
+   ••• を編集メニューに変更
+------------------------- */
+
+renderCustomFields = function() {
+
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+  const container =
+    document.getElementById(
+      "customFieldsContainer"
+    );
+
+  if (!container || !item) return;
+
+  ensureCustomFields(item);
+
+  container.innerHTML = "";
+
+  if (!item.customFields.length) {
+
+    container.innerHTML = `
+      <div class="custom-empty">
+        まだ情報項目がありません
+      </div>
+    `;
+
+    return;
+  }
+
+  item.customFields.forEach(field => {
+
+    const row =
+      document.createElement("div");
+
+    row.className = "custom-field-row";
+
+    let displayValue =
+      escapeHTML(field.value);
+
+    if (field.type === "boolean") {
+
+      displayValue =
+        field.value === "yes"
+          ? "YES"
+          : "NO";
+    }
+
+    row.innerHTML = `
+      <div class="custom-field-main">
+        <span>
+          ${escapeHTML(field.label)}
+        </span>
+
+        <strong>
+          ${displayValue}
+        </strong>
+      </div>
+
+      <button
+        class="custom-field-delete"
+        onclick="
+          openFieldActionMenu('${field.id}')
+        "
+      >
+        •••
+      </button>
+    `;
+
+    container.appendChild(row);
+  });
+};
