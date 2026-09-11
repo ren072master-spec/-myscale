@@ -1115,3 +1115,238 @@ function addChartComingSoon() {
 persist();
 renderEmojiPicker();
 showHome();
+/* =========================
+   v0.3.1 チャート編集・複製
+========================= */
+
+let editingChartId = null;
+
+function showChartMenu(chartId) {
+  const item = items.find(item => item.id === currentItemId);
+  const chart = item?.charts?.find(chart => chart.id === chartId);
+
+  if (!chart) return;
+
+  const action = prompt(
+    `「${chart.name}」\n\n` +
+    `1：編集\n` +
+    `2：複製\n` +
+    `3：削除\n\n` +
+    `番号を入力してね`
+  );
+
+  if (action === "1") {
+    editChart(chartId);
+  }
+
+  if (action === "2") {
+    duplicateChart(chartId);
+  }
+
+  if (action === "3") {
+    deleteChart(chartId);
+  }
+}
+
+function editChart(chartId) {
+  const item = items.find(item => item.id === currentItemId);
+  const chart = item?.charts?.find(chart => chart.id === chartId);
+
+  if (!chart) return;
+
+  editingChartId = chartId;
+
+  document.getElementById("chartName").value = chart.name;
+  document.getElementById("chartMax").value = String(chart.max);
+
+  draftAxes = chart.axes.map(axis => ({
+    name: axis.name,
+    value: axis.value
+  }));
+
+  renderAxisEditor();
+
+  document
+    .getElementById("chartModal")
+    .classList.add("show");
+}
+
+function duplicateChart(chartId) {
+  const item = items.find(item => item.id === currentItemId);
+  const chart = item?.charts?.find(chart => chart.id === chartId);
+
+  if (!chart) return;
+
+  const copy = {
+    id: makeId(),
+    name: `${chart.name} コピー`,
+    max: chart.max,
+
+    axes: chart.axes.map(axis => ({
+      name: axis.name,
+      value: axis.value
+    })),
+
+    createdAt: Date.now()
+  };
+
+  item.charts.push(copy);
+  item.updatedAt = Date.now();
+
+  persist();
+  renderCharts();
+}
+
+function saveChartV031() {
+  const item = items.find(item => item.id === currentItemId);
+
+  if (!item) return;
+
+  const name = document
+    .getElementById("chartName")
+    .value
+    .trim();
+
+  const max = Number(
+    document.getElementById("chartMax").value
+  );
+
+  if (!name) {
+    alert("チャート名を入力してね！");
+    return;
+  }
+
+  const cleanAxes = draftAxes
+    .map(axis => ({
+      name: axis.name.trim(),
+      value: Number(axis.value)
+    }))
+    .filter(axis => axis.name);
+
+  if (cleanAxes.length < 3) {
+    alert("評価項目を3つ以上作ってね！");
+    return;
+  }
+
+  if (editingChartId) {
+    const chart = item.charts.find(
+      chart => chart.id === editingChartId
+    );
+
+    if (!chart) return;
+
+    chart.name = name;
+    chart.max = max;
+    chart.axes = cleanAxes;
+    chart.updatedAt = Date.now();
+
+  } else {
+    item.charts.push({
+      id: makeId(),
+      name,
+      max,
+      axes: cleanAxes,
+      createdAt: Date.now()
+    });
+  }
+
+  item.updatedAt = Date.now();
+
+  persist();
+
+  editingChartId = null;
+
+  closeChartCreator();
+  renderCharts();
+}
+
+
+/* 新規作成時は編集状態を解除 */
+
+const originalOpenChartCreator = openChartCreator;
+
+openChartCreator = function() {
+  editingChartId = null;
+  originalOpenChartCreator();
+};
+
+
+/* 閉じた場合も解除 */
+
+const originalCloseChartCreator = closeChartCreator;
+
+closeChartCreator = function() {
+  editingChartId = null;
+  originalCloseChartCreator();
+};
+
+
+/* チャート表示をv0.3.1版へ */
+
+renderCharts = function() {
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+  const container =
+    document.getElementById("chartsContainer");
+
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  if (!item?.charts?.length) {
+    container.innerHTML = `
+      <div class="chart-placeholder">
+        🕸️
+        <br><br>
+        まだ評価チャートがありません
+        <br>
+        <small>
+          好きな評価軸を作って
+          自分だけのチャートを作ろう
+        </small>
+      </div>
+    `;
+
+    return;
+  }
+
+  item.charts.forEach(chart => {
+    const average =
+      chart.axes.reduce(
+        (sum, axis) => sum + axis.value,
+        0
+      ) / chart.axes.length;
+
+    const card = document.createElement("div");
+
+    card.className = "radar-card";
+
+    card.innerHTML = `
+      <div class="radar-head">
+
+        <div>
+          <h3>${escapeHTML(chart.name)}</h3>
+
+          <div class="chart-average">
+            ⭐ ${average.toFixed(1)}
+            <span>/ ${chart.max}</span>
+          </div>
+        </div>
+
+        <button
+          class="chart-delete"
+          onclick="showChartMenu('${chart.id}')"
+        >
+          •••
+        </button>
+
+      </div>
+
+      ${createRadarSVG(chart)}
+    `;
+
+    container.appendChild(card);
+  });
+};
