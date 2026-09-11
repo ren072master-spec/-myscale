@@ -2713,3 +2713,138 @@ function saveMemoEdit() {
   renderItemDetail();
   applyItemEditMode();
 }
+/* =========================
+   MyScale v0.6.2
+   対象情報編集
+========================= */
+
+let itemInfoSelectedEmoji = "👤";
+
+function openItemInfoEditor() {
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+  if (!item) return;
+
+  document.getElementById(
+    "itemInfoName"
+  ).value = item.name || "";
+
+  itemInfoSelectedEmoji =
+    item.emoji || "👤";
+
+  renderItemInfoEmojiChoices();
+  renderItemInfoCategoryChoices(item);
+
+  document
+    .getElementById("itemInfoEditorModal")
+    ?.classList.add("show");
+}
+
+
+function closeItemInfoEditor() {
+  document
+    .getElementById("itemInfoEditorModal")
+    ?.classList.remove("show");
+}
+
+
+function renderItemInfoEmojiChoices() {
+  const container =
+    document.getElementById(
+      "itemInfoEmojiChoices"
+    );
+
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  emojiChoices.forEach(emoji => {
+    const button =
+      document.createElement("button");
+
+    button.type = "button";
+    button.textContent = emoji;
+
+    button.className =
+      emoji === itemInfoSelectedEmoji
+        ? "emoji-option selected"
+        : "emoji-option";
+
+    button.onclick = function() {
+      itemInfoSelectedEmoji = emoji;
+      renderItemInfoEmojiChoices();
+    };
+
+    container.appendChild(button);
+  });
+}
+
+
+function renderItemInfoCategoryChoices(item) {
+  const select =
+    document.getElementById(
+      "itemInfoCategory"
+    );
+
+  if (!select) return;
+
+  select.innerHTML = "";
+
+  categories.forEach(category => {
+    const option =
+      document.createElement("option");
+
+    option.value = category.id;
+    option.textContent =
+      `${category.emoji || "📁"} ${category.name}`;
+
+    if (category.id === item.categoryId) {
+      option.selected = true;
+    }
+
+    select.appendChild(option);
+  });
+}
+
+
+function saveItemInfoEdit() {
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+  if (!item) return;
+
+  const name =
+    document
+      .getElementById("itemInfoName")
+      .value.trim();
+
+  const categoryId =
+    document
+      .getElementById("itemInfoCategory")
+      .value;
+
+  if (!name) {
+    alert("名前を入力してね！");
+    return;
+  }
+
+  if (!categoryId) {
+    alert("カテゴリーを選んでね！");
+    return;
+  }
+
+  item.name = name;
+  item.emoji = itemInfoSelectedEmoji;
+  item.categoryId = categoryId;
+  item.updatedAt = Date.now();
+
+  persist();
+
+  closeItemInfoEditor();
+
+  renderItemDetail();
+  applyItemEditMode();
+}
