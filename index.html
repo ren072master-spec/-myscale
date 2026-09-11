@@ -802,6 +802,47 @@
 
   </div>
 </div>
+  <!-- =========================
+     v0.6 基本情報 編集メニュー
+========================= -->
+
+<div
+  id="fieldActionModal"
+  class="overlay"
+  onclick="closeOnBackground(event, 'fieldActionModal')"
+>
+  <div class="sheet">
+
+    <div class="action-title">
+      <small>基本情報</small>
+      <strong id="fieldActionTitle">項目</strong>
+    </div>
+
+    <button
+      class="action-row"
+      onclick="actionEditCustomField()"
+    >
+      <span>✏️</span>
+      <span>編集</span>
+    </button>
+
+    <button
+      class="action-row danger-row"
+      onclick="actionDeleteCustomField()"
+    >
+      <span>🗑️</span>
+      <span>削除</span>
+    </button>
+
+    <button
+      class="cancel-action"
+      onclick="closeFieldActionMenu()"
+    >
+      キャンセル
+    </button>
+
+  </div>
+</div>
   <script src="app.js"></script>
 
 </body>
