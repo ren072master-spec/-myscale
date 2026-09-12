@@ -1734,47 +1734,52 @@ renderCharts = function() {
     item => item.id === currentItemId
   );
 
-
   const container =
     document.getElementById(
       "chartsContainer"
     );
 
-
   if (!container) return;
 
-
   container.innerHTML = "";
-
 
   if (!item?.charts?.length) {
 
     container.innerHTML = `
-
       <div class="chart-placeholder">
-
         🕸️
-
         <br><br>
-
         まだ評価チャートがありません
-
         <br>
-
         <small>
           新しく作るか、
           保存したテンプレートを使ってみよう
         </small>
-
       </div>
-
     `;
 
     return;
   }
 
+  ensureSectionOrder(item);
 
-  item.charts.forEach(chart => {
+  const orderedCharts =
+    item.sectionOrder
+      .filter(
+        section =>
+          section.startsWith("chart:")
+      )
+      .map(section => {
+        const chartId =
+          section.slice(6);
+
+        return item.charts.find(
+          chart => chart.id === chartId
+        );
+      })
+      .filter(Boolean);
+
+  orderedCharts.forEach(chart => {
 
     const average =
       chart.axes.reduce(
@@ -1783,37 +1788,30 @@ renderCharts = function() {
         0
       ) / chart.axes.length;
 
-
     const card =
       document.createElement("div");
 
-
     card.className =
-      "radar-card";
+      "radar-card reorder-card";
 
+    card.dataset.section =
+      `chart:${chart.id}`;
 
     card.innerHTML = `
-
       <div class="radar-head">
 
         <div>
-
           <h3>
             ${escapeHTML(chart.name)}
           </h3>
 
           <div class="chart-average">
-
             ⭐ ${average.toFixed(1)}
-
             <span>
               / ${chart.max}
             </span>
-
           </div>
-
         </div>
-
 
         <button
           class="chart-delete"
@@ -1826,16 +1824,14 @@ renderCharts = function() {
 
       </div>
 
-
       ${createRadarSVG(chart)}
-
     `;
 
-
     container.appendChild(card);
-
   });
 
+  renderSectionControls();
+};
 };
 
 
