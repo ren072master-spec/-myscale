@@ -3410,6 +3410,12 @@ function startCategoryItemDrag(
 
   const pointerId = event.pointerId;
 
+  const startX = event.clientX;
+  const startY = event.clientY;
+
+  let currentX = startX;
+  let currentY = startY;
+
   card.classList.add("is-dragging");
 
   document.body.classList.add(
@@ -3425,82 +3431,20 @@ function startCategoryItemDrag(
 
     pointerEvent.preventDefault();
 
-    const cards = [
-      ...document.querySelectorAll(
-        "#categoryItems .item-card[data-item-id]"
-      )
-    ].filter(
-      target => target !== card
-    );
+    currentX = pointerEvent.clientX;
+    currentY = pointerEvent.clientY;
 
-    if (!cards.length) return;
+    const deltaX =
+      currentX - startX;
 
-    let nearestCard = null;
-    let nearestDistance = Infinity;
+    const deltaY =
+      currentY - startY;
 
-    cards.forEach(target => {
-      const rect =
-        target.getBoundingClientRect();
+    card.style.transform =
+      `translate(${deltaX}px, ${deltaY}px) scale(1.04)`;
 
-      const centerX =
-        rect.left + rect.width / 2;
-
-      const centerY =
-        rect.top + rect.height / 2;
-
-      const distance =
-        Math.hypot(
-          pointerEvent.clientX - centerX,
-          pointerEvent.clientY - centerY
-        );
-
-      if (distance < nearestDistance) {
-        nearestDistance = distance;
-        nearestCard = target;
-      }
-    });
-
-    if (!nearestCard) return;
-
-    const targetId =
-      nearestCard.dataset.itemId;
-
-    const currentOrder = [
-      ...category.itemOrder
-    ];
-
-    const fromIndex =
-      currentOrder.indexOf(itemId);
-
-    const targetIndex =
-      currentOrder.indexOf(targetId);
-
-    if (
-      fromIndex < 0 ||
-      targetIndex < 0 ||
-      fromIndex === targetIndex
-    ) {
-      return;
-    }
-
-    currentOrder.splice(
-      fromIndex,
-      1
-    );
-
-    const newTargetIndex =
-      currentOrder.indexOf(targetId);
-
-    currentOrder.splice(
-      newTargetIndex,
-      0,
-      itemId
-    );
-
-    category.itemOrder =
-      currentOrder;
-
-    nearestCard.before(card);
+    card.style.zIndex = "100";
+    card.style.pointerEvents = "none";
   }
 
   function end(pointerEvent) {
@@ -3525,6 +3469,43 @@ function startCategoryItemDrag(
       end
     );
 
+    const cards = [
+      ...document.querySelectorAll(
+        "#categoryItems .item-card[data-item-id]"
+      )
+    ].filter(
+      target => target !== card
+    );
+
+    let nearestCard = null;
+    let nearestDistance = Infinity;
+
+    cards.forEach(target => {
+      const rect =
+        target.getBoundingClientRect();
+
+      const centerX =
+        rect.left + rect.width / 2;
+
+      const centerY =
+        rect.top + rect.height / 2;
+
+      const distance =
+        Math.hypot(
+          currentX - centerX,
+          currentY - centerY
+        );
+
+      if (distance < nearestDistance) {
+        nearestDistance = distance;
+        nearestCard = target;
+      }
+    });
+
+    card.style.transform = "";
+    card.style.zIndex = "";
+    card.style.pointerEvents = "";
+
     card.classList.remove(
       "is-dragging"
     );
@@ -3533,9 +3514,45 @@ function startCategoryItemDrag(
       "category-item-dragging"
     );
 
-    category.updatedAt = Date.now();
+    if (nearestCard) {
+      const targetId =
+        nearestCard.dataset.itemId;
 
-    persist();
+      const newOrder = [
+        ...category.itemOrder
+      ];
+
+      const fromIndex =
+        newOrder.indexOf(itemId);
+
+      const targetIndex =
+        newOrder.indexOf(targetId);
+
+      if (
+        fromIndex >= 0 &&
+        targetIndex >= 0 &&
+        fromIndex !== targetIndex
+      ) {
+        newOrder.splice(
+          fromIndex,
+          1
+        );
+
+        newOrder.splice(
+          targetIndex,
+          0,
+          itemId
+        );
+
+        category.itemOrder =
+          newOrder;
+
+        category.updatedAt =
+          Date.now();
+
+        persist();
+      }
+    }
 
     renderCategoryItems();
   }
