@@ -2855,18 +2855,59 @@ function saveItemInfoEdit() {
 
 const DEFAULT_SECTION_ORDER = [
   "memo",
-  "info",
-  "charts"
+  "info"
 ];
 
 function ensureSectionOrder(item) {
-  if (
-    !Array.isArray(item.sectionOrder) ||
-    item.sectionOrder.length !== 3
-  ) {
-    item.sectionOrder = [
-      ...DEFAULT_SECTION_ORDER
-    ];
+  const chartSections =
+    (item.charts || []).map(
+      chart => `chart:${chart.id}`
+    );
+
+  const validSections = [
+    "memo",
+    "info",
+    ...chartSections
+  ];
+
+  let oldOrder =
+    Array.isArray(item.sectionOrder)
+      ? [...item.sectionOrder]
+      : [...DEFAULT_SECTION_ORDER];
+
+  const newOrder = [];
+
+  oldOrder.forEach(section => {
+    if (section === "charts") {
+      chartSections.forEach(
+        chartSection => {
+          if (
+            !newOrder.includes(chartSection)
+          ) {
+            newOrder.push(chartSection);
+          }
+        }
+      );
+
+      return;
+    }
+
+    if (
+      validSections.includes(section) &&
+      !newOrder.includes(section)
+    ) {
+      newOrder.push(section);
+    }
+  });
+
+  validSections.forEach(section => {
+    if (!newOrder.includes(section)) {
+      newOrder.push(section);
+    }
+  });
+
+  item.sectionOrder = newOrder;
+}
   }
 }
 
