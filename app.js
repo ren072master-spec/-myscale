@@ -3425,51 +3425,82 @@ function startCategoryItemDrag(
 
     pointerEvent.preventDefault();
 
-    const target =
-      document.elementFromPoint(
-        pointerEvent.clientX,
-        pointerEvent.clientY
-      )?.closest(
+    const cards = [
+      ...document.querySelectorAll(
         "#categoryItems .item-card[data-item-id]"
-      );
+      )
+    ].filter(
+      target => target !== card
+    );
 
-    if (!target || target === card) {
-      return;
-    }
+    if (!cards.length) return;
+
+    let nearestCard = null;
+    let nearestDistance = Infinity;
+
+    cards.forEach(target => {
+      const rect =
+        target.getBoundingClientRect();
+
+      const centerX =
+        rect.left + rect.width / 2;
+
+      const centerY =
+        rect.top + rect.height / 2;
+
+      const distance =
+        Math.hypot(
+          pointerEvent.clientX - centerX,
+          pointerEvent.clientY - centerY
+        );
+
+      if (distance < nearestDistance) {
+        nearestDistance = distance;
+        nearestCard = target;
+      }
+    });
+
+    if (!nearestCard) return;
 
     const targetId =
-      target.dataset.itemId;
+      nearestCard.dataset.itemId;
+
+    const currentOrder = [
+      ...category.itemOrder
+    ];
 
     const fromIndex =
-      category.itemOrder.indexOf(itemId);
+      currentOrder.indexOf(itemId);
 
-    const toIndex =
-      category.itemOrder.indexOf(targetId);
+    const targetIndex =
+      currentOrder.indexOf(targetId);
 
     if (
       fromIndex < 0 ||
-      toIndex < 0 ||
-      fromIndex === toIndex
+      targetIndex < 0 ||
+      fromIndex === targetIndex
     ) {
       return;
     }
 
-    category.itemOrder.splice(
+    currentOrder.splice(
       fromIndex,
       1
     );
 
-    category.itemOrder.splice(
-      toIndex,
+    const newTargetIndex =
+      currentOrder.indexOf(targetId);
+
+    currentOrder.splice(
+      newTargetIndex,
       0,
       itemId
     );
 
-    if (fromIndex < toIndex) {
-      target.after(card);
-    } else {
-      target.before(card);
-    }
+    category.itemOrder =
+      currentOrder;
+
+    nearestCard.before(card);
   }
 
   function end(pointerEvent) {
