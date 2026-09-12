@@ -2913,39 +2913,35 @@ function applySectionOrder() {
 
   ensureSectionOrder(item);
 
+  const container =
+    document.getElementById(
+      "detailSections"
+    );
+
+  if (!container) return;
+
   const cards = {};
 
   document
     .querySelectorAll(
-      "#itemView .reorder-card"
+      "#itemView .reorder-card[data-section]"
     )
     .forEach(card => {
       cards[card.dataset.section] = card;
     });
-
-  const firstCard =
-    cards[
-      item.sectionOrder[0]
-    ];
-
-  if (!firstCard) return;
-
-  const parent =
-    firstCard.parentElement;
 
   item.sectionOrder.forEach(
     section => {
       const card = cards[section];
 
       if (card) {
-        parent.appendChild(card);
+        container.appendChild(card);
       }
     }
   );
 
   renderSectionControls();
 }
-
 
 function renderSectionControls() {
   document
