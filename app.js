@@ -2908,9 +2908,6 @@ function ensureSectionOrder(item) {
 
   item.sectionOrder = newOrder;
 }
-  }
-}
-
 
 function applySectionOrder() {
   const item = items.find(
