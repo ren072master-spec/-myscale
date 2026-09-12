@@ -3050,3 +3050,153 @@ renderItemDetail = function() {
   renderItemDetailBeforeV07();
   applySectionOrder();
 };
+/* =========================
+   MyScale v0.8
+   カテゴリー編集モード
+========================= */
+
+let categoryEditMode = false;
+let categoryEditSelectedEmoji = "📁";
+
+
+function applyCategoryEditMode() {
+  const categoryView =
+    document.getElementById("categoryView");
+
+  const editButton =
+    document.getElementById("categoryEditButton");
+
+  if (!categoryView || !editButton) return;
+
+  categoryView.classList.toggle(
+    "edit-mode",
+    categoryEditMode
+  );
+
+  editButton.textContent =
+    categoryEditMode ? "完了" : "編集";
+}
+
+
+function toggleCategoryEditMode() {
+  categoryEditMode = !categoryEditMode;
+
+  applyCategoryEditMode();
+
+  renderCategoryItems();
+}
+
+
+/* -------------------------
+   カテゴリー編集画面
+------------------------- */
+
+function openCategoryEditor() {
+  const category = categories.find(
+    category => category.id === currentCategoryId
+  );
+
+  if (!category) return;
+
+  document.getElementById(
+    "categoryEditName"
+  ).value = category.name || "";
+
+  categoryEditSelectedEmoji =
+    category.emoji || "📁";
+
+  renderCategoryEditEmojiChoices();
+
+  document
+    .getElementById("categoryEditorModal")
+    ?.classList.add("show");
+}
+
+
+function closeCategoryEditor() {
+  document
+    .getElementById("categoryEditorModal")
+    ?.classList.remove("show");
+}
+
+
+function renderCategoryEditEmojiChoices() {
+  const container =
+    document.getElementById(
+      "categoryEditEmojiChoices"
+    );
+
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  emojiChoices.forEach(emoji => {
+    const button =
+      document.createElement("button");
+
+    button.type = "button";
+    button.textContent = emoji;
+
+    button.className =
+      emoji === categoryEditSelectedEmoji
+        ? "emoji-option selected"
+        : "emoji-option";
+
+    button.onclick = function() {
+      categoryEditSelectedEmoji = emoji;
+      renderCategoryEditEmojiChoices();
+    };
+
+    container.appendChild(button);
+  });
+}
+
+
+function saveCategoryEdit() {
+  const category = categories.find(
+    category => category.id === currentCategoryId
+  );
+
+  if (!category) return;
+
+  const name =
+    document
+      .getElementById("categoryEditName")
+      .value.trim();
+
+  if (!name) {
+    alert("カテゴリー名を入力してね！");
+    return;
+  }
+
+  category.name = name;
+  category.emoji = categoryEditSelectedEmoji;
+  category.updatedAt = Date.now();
+
+  persist();
+
+  closeCategoryEditor();
+
+  document.getElementById(
+    "categoryTitle"
+  ).textContent =
+    `${category.emoji} ${category.name}`;
+
+  renderCategoryItems();
+}
+
+
+/* -------------------------
+   カテゴリーを開いた時は閲覧モード
+------------------------- */
+
+const openCategoryBeforeV08 =
+  openCategory;
+
+openCategory = function(id) {
+  categoryEditMode = false;
+
+  openCategoryBeforeV08(id);
+
+  applyCategoryEditMode();
+};
