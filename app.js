@@ -3583,10 +3583,92 @@ function startSectionDrag(
   const startX = event.clientX;
   const startY = event.clientY;
 
+  const startScrollY = window.scrollY;
+
   let currentX = startX;
   let currentY = startY;
 
-  card.classList.add("is-section-dragging");
+  let autoScrollDirection = 0;
+  let autoScrollFrame = null;
+
+  card.classList.add(
+    "is-section-dragging"
+  );
+
+  function updateCardPosition() {
+    const deltaX =
+      currentX - startX;
+
+    const deltaY =
+      currentY -
+      startY +
+      (window.scrollY - startScrollY);
+
+    card.style.transform =
+      `translate(${deltaX}px, ${deltaY}px) scale(1.02)`;
+
+    card.style.zIndex = "100";
+    card.style.pointerEvents = "none";
+  }
+
+  function runAutoScroll() {
+    if (!autoScrollDirection) {
+      autoScrollFrame = null;
+      return;
+    }
+
+    window.scrollBy(
+      0,
+      autoScrollDirection * 8
+    );
+
+    updateCardPosition();
+
+    autoScrollFrame =
+      requestAnimationFrame(
+        runAutoScroll
+      );
+  }
+
+  function updateAutoScroll() {
+    const edgeSize = 90;
+
+    let nextDirection = 0;
+
+    if (currentY < edgeSize) {
+      nextDirection = -1;
+    } else if (
+      currentY >
+      window.innerHeight - edgeSize
+    ) {
+      nextDirection = 1;
+    }
+
+    autoScrollDirection =
+      nextDirection;
+
+    if (
+      autoScrollDirection &&
+      autoScrollFrame === null
+    ) {
+      autoScrollFrame =
+        requestAnimationFrame(
+          runAutoScroll
+        );
+    }
+  }
+
+  function stopAutoScroll() {
+    autoScrollDirection = 0;
+
+    if (autoScrollFrame !== null) {
+      cancelAnimationFrame(
+        autoScrollFrame
+      );
+
+      autoScrollFrame = null;
+    }
+  }
 
   function move(pointerEvent) {
     if (
@@ -3600,17 +3682,8 @@ function startSectionDrag(
     currentX = pointerEvent.clientX;
     currentY = pointerEvent.clientY;
 
-    const deltaX =
-      currentX - startX;
-
-    const deltaY =
-      currentY - startY;
-
-    card.style.transform =
-      `translate(${deltaX}px, ${deltaY}px) scale(1.02)`;
-
-    card.style.zIndex = "100";
-    card.style.pointerEvents = "none";
+    updateCardPosition();
+    updateAutoScroll();
   }
 
   function end(pointerEvent) {
@@ -3619,6 +3692,8 @@ function startSectionDrag(
     ) {
       return;
     }
+
+    stopAutoScroll();
 
     window.removeEventListener(
       "pointermove",
@@ -3662,7 +3737,9 @@ function startSectionDrag(
           currentY - centerY
         );
 
-      if (distance < nearestDistance) {
+      if (
+        distance < nearestDistance
+      ) {
         nearestDistance = distance;
         nearestCard = target;
       }
@@ -3688,7 +3765,9 @@ function startSectionDrag(
         newOrder.indexOf(section);
 
       const targetIndex =
-        newOrder.indexOf(targetSection);
+        newOrder.indexOf(
+          targetSection
+        );
 
       if (
         fromIndex >= 0 &&
