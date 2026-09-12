@@ -1735,13 +1735,12 @@ renderCharts = function() {
   );
 
   const container =
-    document.getElementById(
-      "chartsContainer"
-    );
+  document.getElementById(
+    "detailSections"
+  );
 
-  if (!container) return;
+if (!container) return;
 
-  container.innerHTML = "";
 document
   .querySelectorAll(
     '#detailSections .reorder-card[data-section^="chart:"]'
