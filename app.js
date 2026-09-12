@@ -3293,43 +3293,37 @@ renderCategoryItems = function() {
       </div>
     `;
 
-    if (categoryEditMode) {
-      const controls =
-        document.createElement("div");
+        if (categoryEditMode) {
+      const handle =
+        document.createElement("span");
 
-      controls.className =
-        "category-item-order-controls";
+      handle.className =
+        "category-item-drag-handle";
 
-      const up =
-        document.createElement("button");
+      handle.textContent = "☰";
 
-      up.type = "button";
-      up.textContent = "↑";
-      up.disabled = index === 0;
+      handle.setAttribute(
+        "aria-label",
+        "並び替え"
+      );
 
-      up.onclick = function(event) {
-        event.stopPropagation();
-        moveCategoryItem(item.id, -1);
-      };
+      card.dataset.itemId = item.id;
 
-      const down =
-        document.createElement("button");
+      handle.addEventListener(
+        "pointerdown",
+        event => {
+          event.preventDefault();
+          event.stopPropagation();
 
-      down.type = "button";
-      down.textContent = "↓";
+          startCategoryItemDrag(
+            event,
+            card,
+            item.id
+          );
+        }
+      );
 
-      down.disabled =
-        index === categoryItems.length - 1;
-
-      down.onclick = function(event) {
-        event.stopPropagation();
-        moveCategoryItem(item.id, 1);
-      };
-
-      controls.appendChild(up);
-      controls.appendChild(down);
-
-      card.appendChild(controls);
+      card.appendChild(handle);
     }
 
     container.appendChild(card);
