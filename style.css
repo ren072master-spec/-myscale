@@ -622,3 +622,23 @@ nav button {
   display: block;
   margin: -42px 0 18px auto;
 }
+/* =========================
+   v0.8 カテゴリー編集モード
+========================= */
+
+.category-edit-only {
+  display: none;
+}
+
+#categoryView.edit-mode .category-edit-only {
+  display: block;
+}
+
+#categoryView:not(.edit-mode) > .danger-button {
+  display: none;
+}
+
+#categoryView.edit-mode #categoryEditButton {
+  background: var(--purple);
+  color: white;
+}
