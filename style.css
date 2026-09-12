@@ -711,3 +711,47 @@ nav button {
 .category-item-order-controls button:disabled {
   opacity: 0.3;
 }
+/* =========================
+   v0.8 ドラッグハンドル
+========================= */
+
+.category-item-drag-handle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 11px;
+  background: #efedff;
+  color: var(--purple);
+
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.category-item-drag-handle:active {
+  cursor: grabbing;
+}
+
+#categoryItems .item-card.is-dragging {
+  z-index: 20;
+  transform: scale(1.04);
+  box-shadow: 0 10px 28px rgba(0,0,0,.14);
+  opacity: 0.92;
+}
+
+body.category-item-dragging {
+  overflow: hidden;
+}
