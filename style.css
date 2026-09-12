@@ -656,3 +656,28 @@ nav button {
   font-size: 15px;
   text-align: center;
 }
+/* =========================
+   v0.8 長いカテゴリー名対応
+========================= */
+
+#categoryView header {
+  align-items: flex-start;
+  gap: 12px;
+}
+
+#categoryView header > div {
+  flex: 1;
+  min-width: 0;
+}
+
+#categoryTitle {
+  font-size: clamp(24px, 7vw, 32px);
+  line-height: 1.18;
+  overflow-wrap: anywhere;
+  word-break: auto-phrase;
+}
+
+#categoryEditButton {
+  margin-top: 4px;
+  flex-shrink: 0;
+}
