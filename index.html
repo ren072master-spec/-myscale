@@ -147,58 +147,64 @@
 </button>
     </header>
 
+<div id="detailSections">
+
+  <div
+    class="detail-card reorder-card"
+    data-section="memo"
+  >
+
+    <h2>📝 メモ</h2>
+
+    <button
+      id="memoEditButton"
+      class="chart-delete memo-edit-button"
+      onclick="openMemoEditor()"
+    >
+      •••
+    </button>
 
     <div
-  class="detail-card reorder-card"
-  data-section="memo"
->
+      id="itemMemoView"
+      class="muted"
+    ></div>
 
-      <h2>📝 メモ</h2>
-<button
-  id="memoEditButton"
-  class="chart-delete memo-edit-button"
-  onclick="openMemoEditor()"
->
-  •••
-</button>
-      <div
-        id="itemMemoView"
-        class="muted"
-      ></div>
+    <div
+      id="itemTagsView"
+      class="tags"
+    ></div>
 
-      <div
-        id="itemTagsView"
-        class="tags"
-      ></div>
+  </div>
 
-    </div>
-<div
-  class="detail-card reorder-card"
-  data-section="info"
->
-
-  <h2>📋 基本情報</h2>
-
-  <div id="customFieldsContainer"></div>
-
-  <br>
-
-  <button
-    class="primary-button"
-    onclick="openAddFieldMenu()"
+  <div
+    class="detail-card reorder-card"
+    data-section="info"
   >
-    ＋ 情報項目を追加
-  </button>
+
+    <h2>📋 基本情報</h2>
+
+    <div id="customFieldsContainer"></div>
+
+    <br>
+
+    <button
+      class="primary-button"
+      onclick="openAddFieldMenu()"
+    >
+      ＋ 情報項目を追加
+    </button>
+
+  </div>
+
+  <div id="chartsContainer"></div>
 
 </div>
 
-    <div id="chartsSection">
+<div id="chartsSection">
 
   <h2 class="section-title">
     🕸️ 評価チャート
   </h2>
-
-  <div id="chartsContainer"></div>
 
   <button
     class="primary-button"
@@ -208,7 +214,6 @@
   </button>
 
 </div>
-
     <button
       class="danger-button"
       onclick="deleteCurrentItem()"
