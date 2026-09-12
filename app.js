@@ -3200,3 +3200,45 @@ openCategory = function(id) {
 
   applyCategoryEditMode();
 };
+/* =========================
+   MyScale v0.8
+   カテゴリー内 対象並び替え
+========================= */
+
+function getCategoryOrderedItems() {
+  const category = categories.find(
+    category => category.id === currentCategoryId
+  );
+
+  if (!category) return [];
+
+  const categoryItems = items.filter(
+    item => item.categoryId === currentCategoryId
+  );
+
+  if (!Array.isArray(category.itemOrder)) {
+    category.itemOrder =
+      categoryItems.map(item => item.id);
+  }
+
+  const validIds = new Set(
+    categoryItems.map(item => item.id)
+  );
+
+  category.itemOrder =
+    category.itemOrder.filter(
+      id => validIds.has(id)
+    );
+
+  categoryItems.forEach(item => {
+    if (!category.itemOrder.includes(item.id)) {
+      category.itemOrder.push(item.id);
+    }
+  });
+
+  return category.itemOrder
+    .map(id =>
+      categoryItems.find(item => item.id === id)
+    )
+    .filter(Boolean);
+}
