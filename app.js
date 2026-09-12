@@ -2121,6 +2121,7 @@ function toggleItemEditMode() {
 
   renderCustomFields();
   renderCharts();
+  applySectionOrder();
 }
 
 
