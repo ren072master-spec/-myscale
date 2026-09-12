@@ -3559,3 +3559,176 @@ function startCategoryItemDrag(
     end
   );
 }
+/* =========================
+   v0.8 詳細カードドラッグ
+========================= */
+
+function startSectionDrag(
+  event,
+  card,
+  section
+) {
+  if (!itemEditMode) return;
+
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+  if (!item) return;
+
+  ensureSectionOrder(item);
+
+  const pointerId = event.pointerId;
+
+  const startX = event.clientX;
+  const startY = event.clientY;
+
+  let currentX = startX;
+  let currentY = startY;
+
+  card.classList.add("is-section-dragging");
+
+  function move(pointerEvent) {
+    if (
+      pointerEvent.pointerId !== pointerId
+    ) {
+      return;
+    }
+
+    pointerEvent.preventDefault();
+
+    currentX = pointerEvent.clientX;
+    currentY = pointerEvent.clientY;
+
+    const deltaX =
+      currentX - startX;
+
+    const deltaY =
+      currentY - startY;
+
+    card.style.transform =
+      `translate(${deltaX}px, ${deltaY}px) scale(1.02)`;
+
+    card.style.zIndex = "100";
+    card.style.pointerEvents = "none";
+  }
+
+  function end(pointerEvent) {
+    if (
+      pointerEvent.pointerId !== pointerId
+    ) {
+      return;
+    }
+
+    window.removeEventListener(
+      "pointermove",
+      move
+    );
+
+    window.removeEventListener(
+      "pointerup",
+      end
+    );
+
+    window.removeEventListener(
+      "pointercancel",
+      end
+    );
+
+    const cards = [
+      ...document.querySelectorAll(
+        "#itemView .reorder-card[data-section]"
+      )
+    ].filter(
+      target => target !== card
+    );
+
+    let nearestCard = null;
+    let nearestDistance = Infinity;
+
+    cards.forEach(target => {
+      const rect =
+        target.getBoundingClientRect();
+
+      const centerX =
+        rect.left + rect.width / 2;
+
+      const centerY =
+        rect.top + rect.height / 2;
+
+      const distance =
+        Math.hypot(
+          currentX - centerX,
+          currentY - centerY
+        );
+
+      if (distance < nearestDistance) {
+        nearestDistance = distance;
+        nearestCard = target;
+      }
+    });
+
+    card.style.transform = "";
+    card.style.zIndex = "";
+    card.style.pointerEvents = "";
+
+    card.classList.remove(
+      "is-section-dragging"
+    );
+
+    if (nearestCard) {
+      const targetSection =
+        nearestCard.dataset.section;
+
+      const newOrder = [
+        ...item.sectionOrder
+      ];
+
+      const fromIndex =
+        newOrder.indexOf(section);
+
+      const targetIndex =
+        newOrder.indexOf(targetSection);
+
+      if (
+        fromIndex >= 0 &&
+        targetIndex >= 0 &&
+        fromIndex !== targetIndex
+      ) {
+        [
+          newOrder[fromIndex],
+          newOrder[targetIndex]
+        ] = [
+          newOrder[targetIndex],
+          newOrder[fromIndex]
+        ];
+
+        item.sectionOrder =
+          newOrder;
+
+        item.updatedAt =
+          Date.now();
+
+        persist();
+      }
+    }
+
+    applySectionOrder();
+  }
+
+  window.addEventListener(
+    "pointermove",
+    move,
+    { passive: false }
+  );
+
+  window.addEventListener(
+    "pointerup",
+    end
+  );
+
+  window.addEventListener(
+    "pointercancel",
+    end
+  );
+}
