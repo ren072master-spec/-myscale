@@ -3242,3 +3242,155 @@ function getCategoryOrderedItems() {
     )
     .filter(Boolean);
 }
+/* -------------------------
+   対象カード並び替え表示
+------------------------- */
+
+const renderCategoryItemsBeforeOrder =
+  renderCategoryItems;
+
+renderCategoryItems = function() {
+  const container =
+    document.getElementById("categoryItems");
+
+  if (!container) return;
+
+  const categoryItems =
+    getCategoryOrderedItems();
+
+  container.innerHTML = "";
+
+  categoryItems.forEach((item, index) => {
+    const card =
+      document.createElement("button");
+
+    card.className = "item-card";
+
+    card.onclick = () => {
+      if (!categoryEditMode) {
+        openItem(item.id);
+      }
+    };
+
+    card.innerHTML = `
+      <div class="emoji">
+        ${escapeHTML(item.emoji || "⭐")}
+      </div>
+
+      <h2>${escapeHTML(item.name)}</h2>
+
+      <div class="count">
+        ${
+          item.tags?.length
+            ? item.tags
+                .map(
+                  tag =>
+                    "#" + escapeHTML(tag)
+                )
+                .join(" ")
+            : "評価はこれから"
+        }
+      </div>
+    `;
+
+    if (categoryEditMode) {
+      const controls =
+        document.createElement("div");
+
+      controls.className =
+        "category-item-order-controls";
+
+      const up =
+        document.createElement("button");
+
+      up.type = "button";
+      up.textContent = "↑";
+      up.disabled = index === 0;
+
+      up.onclick = function(event) {
+        event.stopPropagation();
+        moveCategoryItem(item.id, -1);
+      };
+
+      const down =
+        document.createElement("button");
+
+      down.type = "button";
+      down.textContent = "↓";
+
+      down.disabled =
+        index === categoryItems.length - 1;
+
+      down.onclick = function(event) {
+        event.stopPropagation();
+        moveCategoryItem(item.id, 1);
+      };
+
+      controls.appendChild(up);
+      controls.appendChild(down);
+
+      card.appendChild(controls);
+    }
+
+    container.appendChild(card);
+  });
+
+  const add =
+    document.createElement("button");
+
+  add.className =
+    "item-card new-card";
+
+  add.onclick = openItemCreator;
+
+  add.innerHTML = `
+    <div class="plus">＋</div>
+    <h2>対象を追加</h2>
+  `;
+
+  container.appendChild(add);
+};
+
+
+/* -------------------------
+   対象の順番を移動
+------------------------- */
+
+function moveCategoryItem(itemId, direction) {
+  const category = categories.find(
+    category =>
+      category.id === currentCategoryId
+  );
+
+  if (!category) return;
+
+  getCategoryOrderedItems();
+
+  const index =
+    category.itemOrder.indexOf(itemId);
+
+  const nextIndex =
+    index + direction;
+
+  if (
+    index < 0 ||
+    nextIndex < 0 ||
+    nextIndex >= category.itemOrder.length
+  ) {
+    return;
+  }
+
+  [
+    category.itemOrder[index],
+    category.itemOrder[nextIndex]
+  ] = [
+    category.itemOrder[nextIndex],
+    category.itemOrder[index]
+  ];
+
+  category.updatedAt = Date.now();
+
+  persist();
+
+  renderCategoryItems();
+}
