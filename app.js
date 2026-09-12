@@ -2931,55 +2931,44 @@ function renderSectionControls() {
 
   ensureSectionOrder(item);
 
-  item.sectionOrder.forEach(
-    (section, index) => {
+  item.sectionOrder.forEach(section => {
+    const card =
+      document.querySelector(
+        `.reorder-card[data-section="${section}"]`
+      );
 
-      const card =
-        document.querySelector(
-          `.reorder-card[data-section="${section}"]`
+    if (!card) return;
+
+    const handle =
+      document.createElement("div");
+
+    handle.className =
+      "section-order-controls section-drag-handle";
+
+    handle.textContent = "☰";
+
+    handle.setAttribute(
+      "aria-label",
+      "並び替え"
+    );
+
+    handle.addEventListener(
+      "pointerdown",
+      event => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        startSectionDrag(
+          event,
+          card,
+          section
         );
+      }
+    );
 
-      if (!card) return;
-
-      const controls =
-        document.createElement("div");
-
-      controls.className =
-        "section-order-controls";
-
-      const up =
-        document.createElement("button");
-
-      up.type = "button";
-      up.textContent = "↑";
-      up.disabled = index === 0;
-
-      up.onclick = function() {
-        moveSection(section, -1);
-      };
-
-      const down =
-        document.createElement("button");
-
-      down.type = "button";
-      down.textContent = "↓";
-
-      down.disabled =
-        index ===
-        item.sectionOrder.length - 1;
-
-      down.onclick = function() {
-        moveSection(section, 1);
-      };
-
-      controls.appendChild(up);
-      controls.appendChild(down);
-
-      card.prepend(controls);
-    }
-  );
+    card.prepend(handle);
+  });
 }
-
 
 function moveSection(section, direction) {
   const item = items.find(
