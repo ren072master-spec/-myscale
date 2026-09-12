@@ -981,6 +981,54 @@
 
   </div>
 </div>
+ <!-- =========================
+     v0.8 カテゴリー情報編集
+========================= -->
+
+<div
+  id="categoryEditorModal"
+  class="overlay"
+  onclick="closeOnBackground(event, 'categoryEditorModal')"
+>
+  <div class="sheet">
+
+    <div class="sheet-head">
+      <h2>📁 カテゴリー情報を編集</h2>
+
+      <button
+        class="close"
+        onclick="closeCategoryEditor()"
+      >
+        ×
+      </button>
+    </div>
+
+    <label>カテゴリー名</label>
+
+    <input
+      id="categoryEditName"
+      class="field"
+      type="text"
+      maxlength="30"
+      placeholder="例：アニメキャラ"
+    >
+
+    <label>アイコン</label>
+
+    <div
+      id="categoryEditEmojiChoices"
+      class="emoji-grid"
+    ></div>
+
+    <button
+      class="save-button"
+      onclick="saveCategoryEdit()"
+    >
+      保存
+    </button>
+
+  </div>
+</div>
   <script src="app.js?v=070"></script>
 
 </body>
