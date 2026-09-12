@@ -3399,11 +3399,6 @@ function startCategoryItemDrag(
 ) {
   if (!categoryEditMode) return;
 
-  const container =
-    document.getElementById("categoryItems");
-
-  if (!container) return;
-
   const category = categories.find(
     category =>
       category.id === currentCategoryId
@@ -3415,7 +3410,6 @@ function startCategoryItemDrag(
 
   const pointerId = event.pointerId;
 
-  card.setPointerCapture?.(pointerId);
   card.classList.add("is-dragging");
 
   document.body.classList.add(
@@ -3429,6 +3423,8 @@ function startCategoryItemDrag(
       return;
     }
 
+    pointerEvent.preventDefault();
+
     const target =
       document.elementFromPoint(
         pointerEvent.clientX,
@@ -3437,10 +3433,7 @@ function startCategoryItemDrag(
         "#categoryItems .item-card[data-item-id]"
       );
 
-    if (
-      !target ||
-      target === card
-    ) {
+    if (!target || target === card) {
       return;
     }
 
@@ -3472,15 +3465,7 @@ function startCategoryItemDrag(
       itemId
     );
 
-    const targetRect =
-      target.getBoundingClientRect();
-
-    const insertAfter =
-      pointerEvent.clientX >
-        targetRect.left +
-        targetRect.width / 2;
-
-    if (insertAfter) {
+    if (fromIndex < toIndex) {
       target.after(card);
     } else {
       target.before(card);
@@ -3494,31 +3479,27 @@ function startCategoryItemDrag(
       return;
     }
 
+    window.removeEventListener(
+      "pointermove",
+      move
+    );
+
+    window.removeEventListener(
+      "pointerup",
+      end
+    );
+
+    window.removeEventListener(
+      "pointercancel",
+      end
+    );
+
     card.classList.remove(
       "is-dragging"
     );
 
     document.body.classList.remove(
       "category-item-dragging"
-    );
-
-    card.releasePointerCapture?.(
-      pointerId
-    );
-
-    card.removeEventListener(
-      "pointermove",
-      move
-    );
-
-    card.removeEventListener(
-      "pointerup",
-      end
-    );
-
-    card.removeEventListener(
-      "pointercancel",
-      end
     );
 
     category.updatedAt = Date.now();
@@ -3528,17 +3509,18 @@ function startCategoryItemDrag(
     renderCategoryItems();
   }
 
-  card.addEventListener(
+  window.addEventListener(
     "pointermove",
-    move
+    move,
+    { passive: false }
   );
 
-  card.addEventListener(
+  window.addEventListener(
     "pointerup",
     end
   );
 
-  card.addEventListener(
+  window.addEventListener(
     "pointercancel",
     end
   );
