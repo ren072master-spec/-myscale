@@ -1832,7 +1832,6 @@ renderCharts = function() {
 
   renderSectionControls();
 };
-};
 
 
 /* 既存の追加ボタンをv0.4へ */
