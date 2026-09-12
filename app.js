@@ -3533,16 +3533,13 @@ function startCategoryItemDrag(
         targetIndex >= 0 &&
         fromIndex !== targetIndex
       ) {
-        newOrder.splice(
-          fromIndex,
-          1
-        );
-
-        newOrder.splice(
-          targetIndex,
-          0,
-          itemId
-        );
+                [
+          newOrder[fromIndex],
+          newOrder[targetIndex]
+        ] = [
+          newOrder[targetIndex],
+          newOrder[fromIndex]
+        ];
 
         category.itemOrder =
           newOrder;
