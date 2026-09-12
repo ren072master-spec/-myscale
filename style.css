@@ -622,6 +622,12 @@ nav button {
   display: block;
   margin: -42px 0 18px auto;
 }
+
+#itemView.edit-mode
+.reorder-card[data-section="memo"]
+.memo-edit-button {
+  margin-right: 48px;
+}
 /* =========================
    v0.8 カテゴリー編集モード
 ========================= */
