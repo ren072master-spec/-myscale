@@ -671,10 +671,14 @@ nav button {
 }
 
 #categoryTitle {
-  font-size: clamp(24px, 7vw, 32px);
-  line-height: 1.18;
-  overflow-wrap: anywhere;
-  word-break: auto-phrase;
+  font-size: 26px;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  word-break: normal;
+  overflow-wrap: normal;
 }
 
 #categoryEditButton {
