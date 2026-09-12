@@ -3388,3 +3388,158 @@ function moveCategoryItem(itemId, direction) {
 
   renderCategoryItems();
 }
+/* =========================
+   v0.8 カテゴリー対象ドラッグ
+========================= */
+
+function startCategoryItemDrag(
+  event,
+  card,
+  itemId
+) {
+  if (!categoryEditMode) return;
+
+  const container =
+    document.getElementById("categoryItems");
+
+  if (!container) return;
+
+  const category = categories.find(
+    category =>
+      category.id === currentCategoryId
+  );
+
+  if (!category) return;
+
+  getCategoryOrderedItems();
+
+  const pointerId = event.pointerId;
+
+  card.setPointerCapture?.(pointerId);
+  card.classList.add("is-dragging");
+
+  document.body.classList.add(
+    "category-item-dragging"
+  );
+
+  function move(pointerEvent) {
+    if (
+      pointerEvent.pointerId !== pointerId
+    ) {
+      return;
+    }
+
+    const target =
+      document.elementFromPoint(
+        pointerEvent.clientX,
+        pointerEvent.clientY
+      )?.closest(
+        "#categoryItems .item-card[data-item-id]"
+      );
+
+    if (
+      !target ||
+      target === card
+    ) {
+      return;
+    }
+
+    const targetId =
+      target.dataset.itemId;
+
+    const fromIndex =
+      category.itemOrder.indexOf(itemId);
+
+    const toIndex =
+      category.itemOrder.indexOf(targetId);
+
+    if (
+      fromIndex < 0 ||
+      toIndex < 0 ||
+      fromIndex === toIndex
+    ) {
+      return;
+    }
+
+    category.itemOrder.splice(
+      fromIndex,
+      1
+    );
+
+    category.itemOrder.splice(
+      toIndex,
+      0,
+      itemId
+    );
+
+    const targetRect =
+      target.getBoundingClientRect();
+
+    const insertAfter =
+      pointerEvent.clientX >
+        targetRect.left +
+        targetRect.width / 2;
+
+    if (insertAfter) {
+      target.after(card);
+    } else {
+      target.before(card);
+    }
+  }
+
+  function end(pointerEvent) {
+    if (
+      pointerEvent.pointerId !== pointerId
+    ) {
+      return;
+    }
+
+    card.classList.remove(
+      "is-dragging"
+    );
+
+    document.body.classList.remove(
+      "category-item-dragging"
+    );
+
+    card.releasePointerCapture?.(
+      pointerId
+    );
+
+    card.removeEventListener(
+      "pointermove",
+      move
+    );
+
+    card.removeEventListener(
+      "pointerup",
+      end
+    );
+
+    card.removeEventListener(
+      "pointercancel",
+      end
+    );
+
+    category.updatedAt = Date.now();
+
+    persist();
+
+    renderCategoryItems();
+  }
+
+  card.addEventListener(
+    "pointermove",
+    move
+  );
+
+  card.addEventListener(
+    "pointerup",
+    end
+  );
+
+  card.addEventListener(
+    "pointercancel",
+    end
+  );
+}
