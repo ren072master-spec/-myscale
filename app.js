@@ -1742,7 +1742,11 @@ renderCharts = function() {
   if (!container) return;
 
   container.innerHTML = "";
-
+document
+  .querySelectorAll(
+    '#detailSections .reorder-card[data-section^="chart:"]'
+  )
+  .forEach(card => card.remove());
   if (!item?.charts?.length) {
 
     container.innerHTML = `
