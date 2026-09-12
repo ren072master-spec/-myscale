@@ -755,3 +755,48 @@ nav button {
 body.category-item-dragging {
   overflow: hidden;
 }
+/* =========================
+   v0.8 詳細カードドラッグ
+========================= */
+
+.reorder-card {
+  position: relative;
+}
+
+.section-drag-handle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 11px;
+  background: #efedff;
+  color: var(--purple);
+
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+
+  z-index: 5;
+}
+
+.section-drag-handle:active {
+  cursor: grabbing;
+}
+
+#itemView .reorder-card.is-section-dragging {
+  z-index: 100;
+  box-shadow: 0 12px 32px rgba(0,0,0,.16);
+  opacity: 0.94;
+}
