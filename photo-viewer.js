@@ -307,3 +307,124 @@ async function renderItemPhotoSlot() {
     "is-photo-add"
   );
 }
+/* -------------------------
+   写真ビュー
+------------------------- */
+
+let photoViewerURL = null;
+
+async function openPhotoViewer() {
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+  if (!item) return;
+
+  ensureItemPhotos(item);
+
+  if (!item.mainPhotoId) return;
+
+  const photo =
+    await getPhotoFromDB(
+      item.mainPhotoId
+    );
+
+  if (!photo?.blob) return;
+
+  const modal =
+    document.getElementById(
+      "photoViewerModal"
+    );
+
+  const main =
+    document.getElementById(
+      "photoViewerMain"
+    );
+
+  const count =
+    document.getElementById(
+      "photoViewerCount"
+    );
+
+  if (!modal || !main) return;
+
+  if (photoViewerURL) {
+    URL.revokeObjectURL(
+      photoViewerURL
+    );
+  }
+
+  photoViewerURL =
+    URL.createObjectURL(
+      photo.blob
+    );
+
+  main.innerHTML = "";
+
+  const image =
+    document.createElement("img");
+
+  image.src = photoViewerURL;
+
+  image.alt =
+    `${item.name}の写真`;
+
+  main.appendChild(image);
+
+  if (count) {
+    const total =
+      item.photoIds.length || 1;
+
+    const index =
+      Math.max(
+        0,
+        item.photoIds.indexOf(
+          item.mainPhotoId
+        )
+      );
+
+    count.textContent =
+      `${index + 1} / ${total}`;
+  }
+
+  modal.classList.add("show");
+}
+
+
+function closePhotoViewer() {
+  const modal =
+    document.getElementById(
+      "photoViewerModal"
+    );
+
+  const main =
+    document.getElementById(
+      "photoViewerMain"
+    );
+
+  modal?.classList.remove("show");
+
+  if (main) {
+    main.innerHTML = "";
+  }
+
+  if (photoViewerURL) {
+    URL.revokeObjectURL(
+      photoViewerURL
+    );
+
+    photoViewerURL = null;
+  }
+}
+
+
+function closePhotoViewerOnBackground(
+  event
+) {
+  if (
+    event.target.id ===
+    "photoViewerModal"
+  ) {
+    closePhotoViewer();
+  }
+}
