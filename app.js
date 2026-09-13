@@ -2122,6 +2122,7 @@ function toggleItemEditMode() {
   renderCustomFields();
   renderCharts();
   applySectionOrder();
+  renderItemPhotoSlot();
 }
 
 
@@ -3071,6 +3072,7 @@ const renderItemDetailBeforeV07 =
 renderItemDetail = function() {
   renderItemDetailBeforeV07();
   applySectionOrder();
+  renderItemPhotoSlot();
 };
 /* =========================
    MyScale v0.8
