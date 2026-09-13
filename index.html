@@ -241,7 +241,35 @@
   onchange="handleItemPhotoSelected(event)"
   hidden
 >
+<!-- v0.9 写真ビュー -->
+<div
+  id="photoViewerModal"
+  class="overlay photo-viewer-overlay"
+  onclick="closePhotoViewerOnBackground(event)"
+>
+  <div class="photo-viewer-sheet">
 
+    <div class="photo-viewer-head">
+      <span id="photoViewerCount">
+        1 / 1
+      </span>
+
+      <button
+        class="photo-viewer-close"
+        type="button"
+        onclick="closePhotoViewer()"
+      >
+        ×
+      </button>
+    </div>
+
+    <div
+      id="photoViewerMain"
+      class="photo-viewer-main"
+    ></div>
+
+  </div>
+</div>
 <!-- 下ナビ -->
 <nav>
 
