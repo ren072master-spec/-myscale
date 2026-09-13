@@ -103,7 +103,6 @@ async function handleItemPhotoSelected(
     );
   }
 }
-}
 
 
 /* -------------------------
