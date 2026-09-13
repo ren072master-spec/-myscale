@@ -893,3 +893,86 @@ body.category-item-dragging {
 .item-photo-slot {
   cursor: default;
 }
+/* =========================
+   v0.9 写真ビュー
+========================= */
+
+.photo-viewer-overlay {
+  z-index: 200;
+  background: rgba(10, 10, 16, .94);
+  align-items: stretch;
+}
+
+.photo-viewer-sheet {
+  width: min(480px, 100%);
+  min-height: 100vh;
+  margin: 0 auto;
+
+  padding:
+    calc(18px + env(safe-area-inset-top))
+    18px
+    calc(18px + env(safe-area-inset-bottom));
+
+  display: flex;
+  flex-direction: column;
+
+  background: #0a0a10;
+}
+
+.photo-viewer-head {
+  min-height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  color: white;
+}
+
+#photoViewerCount {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.photo-viewer-close {
+  width: 42px;
+  height: 42px;
+
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, .12);
+  color: white;
+
+  font-size: 28px;
+  line-height: 1;
+}
+
+.photo-viewer-main {
+  flex: 1;
+  min-height: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 18px 0;
+}
+
+.photo-viewer-main img {
+  display: block;
+
+  width: 100%;
+  max-width: 100%;
+
+  max-height: calc(
+    100vh -
+    130px -
+    env(safe-area-inset-top) -
+    env(safe-area-inset-bottom)
+  );
+
+  object-fit: contain;
+  border-radius: 16px;
+}
