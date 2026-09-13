@@ -301,11 +301,14 @@ async function renderItemPhotoSlot() {
   image.alt =
     `${item.name}の写真`;
 
-  slot.appendChild(image);
+   slot.appendChild(image);
 
   slot.classList.remove(
     "is-photo-add"
   );
+
+  slot.onclick =
+    openPhotoViewer;
 }
 /* -------------------------
    写真ビュー
