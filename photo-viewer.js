@@ -76,7 +76,7 @@ async function handleItemPhotoSelected(
         blob
       );
 
-    ensureItemPhotos(item);
+        ensureItemPhotos(item);
 
     item.photoIds.push(photo.id);
 
@@ -87,6 +87,8 @@ async function handleItemPhotoSelected(
     item.updatedAt = Date.now();
 
     persist();
+
+    await renderItemPhotoSlot();
 
     alert("写真を追加したよ！");
 
@@ -100,6 +102,7 @@ async function handleItemPhotoSelected(
       "写真を保存できませんでした。"
     );
   }
+}
 }
 
 
