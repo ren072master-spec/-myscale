@@ -457,10 +457,10 @@ function renderItemDetail() {
     category => category.id === item.categoryId
   );
 
-  document.getElementById(
+    document.getElementById(
     "itemTitle"
   ).textContent =
-    `${item.emoji || "⭐"} ${item.name}`;
+    item.name;
 
   document.getElementById(
     "itemCategory"
