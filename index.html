@@ -221,6 +221,14 @@
 
 </main>
 
+<!-- v0.9 写真選択 -->
+<input
+  id="itemPhotoInput"
+  type="file"
+  accept="image/*"
+  onchange="handleItemPhotoSelected(event)"
+  hidden
+>
 
 <!-- 下ナビ -->
 <nav>
@@ -1029,7 +1037,8 @@
   </div>
 </div>
   <script src="photo-storage.js?v=001"></script>
-  <script src="app.js?v=091"></script>
+<script src="photo-viewer.js?v=001"></script>
+<script src="app.js?v=091"></script>
 
 </body>
 </html>
