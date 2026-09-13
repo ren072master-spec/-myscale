@@ -815,3 +815,14 @@ body.category-item-dragging {
 .chart-delete {
   margin-right: 48px;
 }
+/* =========================
+   v0.8 閲覧モード見出し整理
+========================= */
+
+#itemView:not(.edit-mode)
+.reorder-card[data-section="memo"] > h2,
+
+#itemView:not(.edit-mode)
+.reorder-card[data-section="info"] > h2 {
+  display: none;
+}
