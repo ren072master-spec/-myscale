@@ -120,32 +120,44 @@
       ← カテゴリー
     </button>
 
-    <header>
-      <div>
-        <h1 id="itemTitle">
-          対象
-        </h1>
+    <header class="item-profile-header">
 
-        <div
-          id="itemCategory"
-          class="subtitle"
-        ></div>
-      </div>
-      <button
-  id="itemEditButton"
-  class="item-edit-button"
-  onclick="toggleItemEditMode()"
->
-  編集
-</button>
-      <button
-  id="itemInfoEditButton"
-  class="chart-delete item-info-edit-button"
-  onclick="openItemInfoEditor()"
->
-  対象情報を編集
-</button>
-    </header>
+  <button
+    id="itemPhotoSlot"
+    class="item-photo-slot"
+    type="button"
+  ></button>
+
+  <div class="item-profile-text">
+
+    <h1 id="itemTitle">
+      対象
+    </h1>
+
+    <div
+      id="itemCategory"
+      class="subtitle"
+    ></div>
+
+  </div>
+
+  <button
+    id="itemEditButton"
+    class="item-edit-button"
+    onclick="toggleItemEditMode()"
+  >
+    編集
+  </button>
+
+  <button
+    id="itemInfoEditButton"
+    class="chart-delete item-info-edit-button"
+    onclick="openItemInfoEditor()"
+  >
+    対象情報を編集
+  </button>
+
+</header>
 
 <div id="detailSections">
 
