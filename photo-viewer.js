@@ -213,3 +213,95 @@ function loadPhotoImage(file) {
     }
   );
 }
+
+
+/* -------------------------
+   プロフィール写真表示
+------------------------- */
+
+let currentItemPhotoURL = null;
+
+async function renderItemPhotoSlot() {
+  const slot =
+    document.getElementById(
+      "itemPhotoSlot"
+    );
+
+  const item = items.find(
+    item => item.id === currentItemId
+  );
+
+  if (!slot || !item) return;
+
+  ensureItemPhotos(item);
+
+  if (currentItemPhotoURL) {
+    URL.revokeObjectURL(
+      currentItemPhotoURL
+    );
+
+    currentItemPhotoURL = null;
+  }
+
+  slot.innerHTML = "";
+  slot.onclick = null;
+
+  if (!item.mainPhotoId) {
+
+    if (itemEditMode) {
+      slot.textContent = "＋";
+      slot.classList.add(
+        "is-photo-add"
+      );
+
+      slot.onclick =
+        chooseItemPhoto;
+
+    } else {
+      slot.textContent =
+        item.emoji || "⭐";
+
+      slot.classList.remove(
+        "is-photo-add"
+      );
+    }
+
+    return;
+  }
+
+  const photo =
+    await getPhotoFromDB(
+      item.mainPhotoId
+    );
+
+  if (!photo?.blob) {
+    slot.textContent =
+      item.emoji || "⭐";
+
+    slot.classList.remove(
+      "is-photo-add"
+    );
+
+    return;
+  }
+
+  currentItemPhotoURL =
+    URL.createObjectURL(
+      photo.blob
+    );
+
+  const image =
+    document.createElement("img");
+
+  image.src =
+    currentItemPhotoURL;
+
+  image.alt =
+    `${item.name}の写真`;
+
+  slot.appendChild(image);
+
+  slot.classList.remove(
+    "is-photo-add"
+  );
+}
